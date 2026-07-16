@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════
+  ✏️ 수정하는 방법
+  1) 아래에서 "✏️" 표시가 붙은 부분의 글자만 바꾸면 됩니다.
+  2) <style> 부분은 디자인 코드라서 건드리지 않아도 괜찮아요.
+  3) 파일 이름은 반드시 index.html 이어야 합니다!
+  ═══════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ✏️ 브라우저 탭에 보이는 제목 -->
+  <title>Hyoungjun Jeon</title>
+  <!-- ✏️ 검색했을 때 보이는 한 줄 설명 -->
+  <meta name="description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #F7F9F4;         /* 새순이 비치는 듯한 연한 배경 */
+      --ink: #1F2A22;        /* 진한 초록빛 먹색 글자 */
+      --muted: #5A6B5E;      /* 흐린 보조 글자 */
+      --green: #35854A;      /* 새싹 초록 */
+      --green-deep: #2E6B3F; /* 진한 초록 (링크용) */
+      --leaf-soft: #DCE9D5;  /* 옅은 잎사귀색 (배경 강조용) */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--leaf-soft); }
+
+    .wrap {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 1.4rem;
+    }
+
+    /* ── 첫 화면 ───────────────────────── */
+    .hero {
+      padding-top: clamp(4rem, 14vh, 7rem);
+      padding-bottom: 3.5rem;
+    }
+
+    .sprout {
+      width: 52px;
+      height: 52px;
+      display: block;
+      margin-bottom: 1.6rem;
+      transform-origin: 50% 100%;
+      animation: grow 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    }
+
+    @keyframes grow {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+
+    h1 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: clamp(2.2rem, 7.5vw, 3.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--green-deep);
+    }
+
+    .tagline {
+      margin-top: 1.3rem;
+      color: var(--muted);
+      max-width: 34rem;
+    }
+
+    .tagline a {
+      color: var(--green-deep);
+      text-decoration-color: var(--leaf-soft);
+      text-underline-offset: 3px;
+    }
+
+    /* ── 본문 섹션 ─────────────────────── */
+    section { padding: 2.6rem 0; }
+
+    .label {
+      color: var(--green);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 1.1rem;
+    }
+
+    .label::before {
+      content: "";
+      display: inline-block;
+      width: 22px;
+      height: 2px;
+      background: var(--green);
+      border-radius: 2px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    section p { max-width: 36rem; }
+
+    /* 잎사귀 모양 글머리표 목록 */
+    ul.leaves { list-style: none; }
+
+    ul.leaves li {
+      position: relative;
+      padding-left: 1.5em;
+      margin-bottom: 0.55em;
+    }
+
+    ul.leaves li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 0.58em;
+      width: 9px;
+      height: 9px;
+      background: var(--green);
+      border-radius: 0 70% 0 70%; /* 작은 잎사귀 모양 */
+    }
+
+    /* 연락처 버튼 */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 0.4rem;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 0.5em 1.15em;
+      border: 1.5px solid var(--green-deep);
+      border-radius: 999px;
+      color: var(--green-deep);
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+
+    .chip:hover {
+      background: var(--leaf-soft);
+      transform: translateY(-2px);
+    }
+
+    .chip:focus-visible,
+    a:focus-visible {
+      outline: 2.5px solid var(--green);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* ── 하단 ─────────────────────────── */
+    footer {
+      margin-top: 3rem;
+      padding: 1.8rem 0 3rem;
+      border-top: 1px solid var(--leaf-soft);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sprout { animation: none; }
+      .chip { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- ═══════════ ✏️ 여기부터 내용을 수정하세요 ═══════════ -->
+
+    <header class="hero">
+      <!-- 새싹 그림 (첫 홈페이지 기념 🌱) -->
+      <svg class="sprout" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 60 C32 48 33 40 33 30" fill="none" stroke="#2E6B3F" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32.5 38 C24 36 18 30 17 21 C26 22 31.5 29 32.5 38 Z" fill="#35854A"/>
+        <path d="M33 32 C34 23 40 16 48 14 C47.5 24 41 30.5 33 32 Z" fill="#57A86A"/>
+      </svg>
+
+      <p class="eyebrow">Welcome</p>
+
+      <h1>Hi, I'm <em>Hyoungjun Jeon</em></h1>
+
+      <!-- ✏️ 직함이 정해져 있으면 바꿔주세요 (예: an M.S. student at / a Ph.D. student at / a researcher at) -->
+      <p class="tagline">
+        I work at <a href="https://secai.skku.edu">SecAI Lab</a> at
+        Sungkyunkwan University (SKKU) in Suwon, South Korea.
+      </p>
+    </header>
+
+    <main>
+      <section>
+        <p class="label">About</p>
+        <!-- ✏️ 자기소개 문단 — 자유롭게 수정하세요 -->
+        <p>
+          I'm a member of SecAI Lab, a security research group in the
+          Department of Computer Science and Engineering at Sungkyunkwan
+          University. This site is where I'll collect what I'm working on
+          and thinking about.
+        </p>
+      </section>
+
+      <section>
+        <p class="label">Research Interests</p>
+        <!-- ✏️ 아래는 예시입니다 — 본인 연구 분야로 바꿔주세요 -->
+        <ul class="leaves">
+          <li>AI security</li>
+          <li>Software &amp; binary analysis</li>
+          <li>Machine learning</li>
+        </ul>
+      </section>
+
+      <section>
+        <p class="label">Links</p>
+        <div class="chips">
+          <!-- ✏️ "your-id"를 본인 깃허브 아이디로 바꿔주세요 -->
+          <a class="chip" href="https://github.com/CodingJune20">GitHub</a>
+          <!-- ✏️ 본인 이메일 주소로 바꿔주세요 -->
+          <a class="chip" href="wnssad0202@g.skku.edu">Email</a>
+          <a class="chip" href="https://secai.skku.edu">SecAI Lab</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      © 2026 Hyoungjun Jeon · Built with GitHub Pages 🌱
+    </footer>
+
+  </div>
+</body>
+</html>
