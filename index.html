@@ -11,10 +11,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F7F9F4" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0F1613" media="(prefers-color-scheme: dark)" />
   <!-- ✏️ 브라우저 탭에 보이는 제목 -->
   <title>Hyoungjun Jeon</title>
   <!-- ✏️ 검색했을 때 보이는 한 줄 설명 -->
   <meta name="description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
+  <meta name="author" content="Hyoungjun Jeon" />
+  <link rel="canonical" href="https://codingjune20.github.io/" />
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Hyoungjun Jeon" />
+  <meta property="og:description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
+  <meta property="og:url" content="https://codingjune20.github.io/" />
+  <meta name="twitter:card" content="summary" />
+
+  <!-- Inline SVG favicon (sprout 🌱) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 60 C32 48 33 40 33 30' fill='none' stroke='%232E6B3F' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32.5 38 C24 36 18 30 17 21 C26 22 31.5 29 32.5 38 Z' fill='%2335854A'/%3E%3Cpath d='M33 32 C34 23 40 16 48 14 C47.5 24 41 30.5 33 32 Z' fill='%2357A86A'/%3E%3C/svg%3E" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,6 +42,19 @@
       --green: #35854A;      /* 새싹 초록 */
       --green-deep: #2E6B3F; /* 진한 초록 (링크용) */
       --leaf-soft: #DCE9D5;  /* 옅은 잎사귀색 (배경 강조용) */
+      --border: #DCE9D5;     /* 구분선 */
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0F1613;
+        --ink: #E6EFE6;
+        --muted: #9CB1A2;
+        --green: #7FC58E;
+        --green-deep: #A8DDB4;
+        --leaf-soft: #1E2A22;
+        --border: #26332B;
+      }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -185,7 +212,7 @@
     footer {
       margin-top: 3rem;
       padding: 1.8rem 0 3rem;
-      border-top: 1px solid var(--leaf-soft);
+      border-top: 1px solid var(--border);
       color: var(--muted);
       font-size: 0.88rem;
     }
@@ -248,10 +275,10 @@
         <p class="label">Links</p>
         <div class="chips">
           <!-- ✏️ "your-id"를 본인 깃허브 아이디로 바꿔주세요 -->
-          <a class="chip" href="https://github.com/CodingJune20">GitHub</a>
+          <a class="chip" href="https://github.com/CodingJune20" rel="me noopener">GitHub</a>
           <!-- ✏️ 본인 이메일 주소로 바꿔주세요 -->
-          <a class="chip" href="wnssad0202@g.skku.edu">Email</a>
-          <a class="chip" href="https://secai.skku.edu">SecAI Lab</a>
+          <a class="chip" href="mailto:wnssad0202@g.skku.edu">Email</a>
+          <a class="chip" href="https://secai.skku.edu" rel="noopener">SecAI Lab</a>
         </div>
       </section>
     </main>
