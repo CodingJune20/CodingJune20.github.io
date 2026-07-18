@@ -11,7 +11,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#EEF2E7" id="theme-color-meta" />
+  <meta name="theme-color" content="#EEF0E7" id="theme-color-meta" />
   <!-- ✏️ 브라우저 탭에 보이는 제목 -->
   <title>Hyoungjun Jeon</title>
   <!-- ✏️ 검색했을 때 보이는 한 줄 설명 -->
@@ -31,9 +31,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Set theme before paint to avoid a flash -->
+  <!-- Apply stored theme before paint so there's no flash -->
   <script>
     (function () {
       try {
@@ -47,373 +47,316 @@
 
   <style>
     :root {
-      /* ── Light: cool herbal paper ─────────────── */
-      --paper:  #EEF2E7;
-      --ink:    #17231C;
+      /* ── Light: terminal manual paper, cool herbal cast ─── */
+      --paper:  #EEF0E7;
+      --ink:    #171E19;
+      --dim:    #6C7570;
       --moss:   #2E6B3F;
       --sprout: #4A9B5F;
-      --muted:  #67766B;
-      --tint:   #DDE8D0;
-      --border: #D6DFC8;
-      --grain-strength: 0.06;
+      --line:   #D5DBCC;
+      --tint:   #E1E7D7;
+      --dot:    rgba(46, 107, 63, 0.10);
     }
 
-    /* System dark */
     @media (prefers-color-scheme: dark) {
       :root {
-        --paper:  #0B120F;
-        --ink:    #E7EBE1;
+        --paper:  #0C1310;
+        --ink:    #E4E8DE;
+        --dim:    #8A9490;
         --moss:   #82C793;
         --sprout: #A2DDB1;
-        --muted:  #8A9C90;
+        --line:   #212A24;
         --tint:   #17221C;
-        --border: #223028;
-        --grain-strength: 0.10;
+        --dot:    rgba(130, 199, 147, 0.11);
       }
     }
-
-    /* Manual overrides beat system */
     :root[data-theme="light"] {
-      --paper:  #EEF2E7;
-      --ink:    #17231C;
+      --paper:  #EEF0E7;
+      --ink:    #171E19;
+      --dim:    #6C7570;
       --moss:   #2E6B3F;
       --sprout: #4A9B5F;
-      --muted:  #67766B;
-      --tint:   #DDE8D0;
-      --border: #D6DFC8;
-      --grain-strength: 0.06;
+      --line:   #D5DBCC;
+      --tint:   #E1E7D7;
+      --dot:    rgba(46, 107, 63, 0.10);
     }
     :root[data-theme="dark"] {
-      --paper:  #0B120F;
-      --ink:    #E7EBE1;
+      --paper:  #0C1310;
+      --ink:    #E4E8DE;
+      --dim:    #8A9490;
       --moss:   #82C793;
       --sprout: #A2DDB1;
-      --muted:  #8A9C90;
+      --line:   #212A24;
       --tint:   #17221C;
-      --border: #223028;
-      --grain-strength: 0.10;
+      --dot:    rgba(130, 199, 147, 0.11);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--paper);
+      background-color: var(--paper);
+      background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+      background-size: 22px 22px;
+      background-position: 0 0;
       color: var(--ink);
       font-family: "IBM Plex Sans", system-ui, sans-serif;
-      font-size: 17px;
+      font-size: 16.5px;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.25s ease, color 0.25s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
       min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
     }
 
     ::selection { background: var(--tint); color: var(--ink); }
 
-    /* ── Paper grain ─── very subtle warmth, behind everything */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: var(--grain-strength);
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-      mix-blend-mode: multiply;
+    .mono {
+      font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-feature-settings: "ss01" on, "ss02" on;
     }
-    :root[data-theme="dark"] body::before,
-    body::before { }
-    @media (prefers-color-scheme: dark) {
-      body::before { mix-blend-mode: screen; }
-    }
-    :root[data-theme="light"] body::before { mix-blend-mode: multiply; }
-    :root[data-theme="dark"] body::before  { mix-blend-mode: screen; }
+
+    a { color: inherit; }
 
     .wrap {
-      max-width: 44rem;
+      max-width: 42rem;
       margin: 0 auto;
-      padding: 0 1.5rem;
-      position: relative;
-      z-index: 1;
+      padding: 0 1.4rem;
     }
 
-    /* ── Theme toggle (top-right, floating) ─────── */
-    .toggle {
-      position: fixed;
-      top: 1.1rem;
-      right: 1.2rem;
+    /* ── Sticky top bar ─────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
       z-index: 10;
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--paper);
+      background: color-mix(in srgb, var(--paper) 82%, transparent);
+      backdrop-filter: saturate(140%) blur(8px);
+      -webkit-backdrop-filter: saturate(140%) blur(8px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .topbar.scrolled { border-bottom-color: var(--line); }
+    .topbar-inner {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0.55rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.05rem 0.5rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .nav a {
+      color: var(--dim);
+      text-decoration: none;
+      padding: 0.1em 0.05em;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .nav a:hover { color: var(--moss); }
+    .nav a.active { color: var(--ink); border-bottom-color: var(--moss); }
+    .nav a + a::before {
+      content: "·";
+      color: var(--dim);
+      opacity: 0.55;
+      margin-right: 0.55rem;
+      padding-right: 0;
+    }
+    .nav a:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; border-radius: 2px; }
+
+    /* Anchor scroll offset so the topbar doesn't cover the heading */
+    section[id] { scroll-margin-top: 3.6rem; }
+
+    /* ── Theme toggle ───────────────────────── */
+    .toggle {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: transparent;
       color: var(--ink);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .toggle:hover { background: var(--tint); transform: translateY(-1px); }
-    .toggle:focus-visible {
-      outline: 2.5px solid var(--moss);
-      outline-offset: 3px;
-    }
-    .toggle svg { width: 18px; height: 18px; stroke: currentColor; }
-    .toggle .sun { display: none; }
+    .toggle:hover { background: var(--tint); border-color: var(--moss); }
+    .toggle:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
+    .toggle svg { width: 15px; height: 15px; stroke: currentColor; }
+    .toggle .sun  { display: none; }
     .toggle .moon { display: inline; }
-    :root[data-theme="dark"] .toggle .sun,
-    :root:not([data-theme]) .toggle .sun { }
-    /* When effective theme is dark, show sun (to switch back) */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) .toggle .moon { display: none; }
       :root:not([data-theme="light"]) .toggle .sun  { display: inline; }
     }
-    :root[data-theme="dark"] .toggle .moon { display: none; }
-    :root[data-theme="dark"] .toggle .sun  { display: inline; }
+    :root[data-theme="dark"]  .toggle .moon { display: none; }
+    :root[data-theme="dark"]  .toggle .sun  { display: inline; }
     :root[data-theme="light"] .toggle .moon { display: inline; }
     :root[data-theme="light"] .toggle .sun  { display: none; }
 
-    /* ── Hero ────────────────────────────────── */
+    /* ── Hero: shell prompt ─────────────────── */
     .hero {
-      padding-top: clamp(4.5rem, 15vh, 8rem);
-      padding-bottom: 3.5rem;
+      padding-top: clamp(4rem, 14vh, 7rem);
+      padding-bottom: 2.6rem;
     }
 
-    .sprout {
-      width: 56px;
-      height: 56px;
-      display: block;
-      margin-bottom: 1.75rem;
-    }
-    .sprout .stem {
-      fill: none;
-      stroke: var(--moss);
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-dasharray: 60;
-      stroke-dashoffset: 60;
-      animation: draw-stem 1.1s cubic-bezier(0.25, 0.9, 0.35, 1) 0.15s forwards;
-    }
-    .sprout .leaf {
-      opacity: 0;
-      transform-origin: 32px 32px;
-      animation: leaf-in 0.7s cubic-bezier(0.34, 1.5, 0.5, 1) forwards;
-    }
-    .sprout .leaf-a { animation-delay: 0.85s; }
-    .sprout .leaf-b { animation-delay: 1.05s; }
-
-    @keyframes draw-stem {
-      to { stroke-dashoffset: 0; }
-    }
-    @keyframes leaf-in {
-      from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
-      to   { opacity: 1; transform: scale(1) rotate(0); }
-    }
-
-    .eyebrow {
+    .file-note {
       font-family: "IBM Plex Mono", ui-monospace, monospace;
-      color: var(--moss);
+      color: var(--dim);
       font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      margin-bottom: 1rem;
+      margin-bottom: 2.2rem;
+      letter-spacing: 0.01em;
     }
-    .eyebrow::before {
-      content: "↳ ";
-      opacity: 0.7;
+    .file-note .path { color: var(--ink); }
+
+    .prompt {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      color: var(--dim);
+      font-size: 0.95rem;
+      display: block;
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.005em;
     }
+    .prompt .sigil { color: var(--moss); font-weight: 500; margin-right: 0.6em; }
+    .prompt .host  { color: var(--ink); }
+    .prompt .cmd   { color: var(--ink); }
 
     h1 {
-      font-family: "Fraunces", ui-serif, Georgia, serif;
-      font-weight: 600;
-      font-size: clamp(2.4rem, 8.5vw, 4rem);
-      line-height: 1.05;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-weight: 500;
+      font-size: clamp(2rem, 6.5vw, 2.9rem);
+      line-height: 1.15;
       letter-spacing: -0.02em;
-    }
-    h1 .name {
-      font-style: italic;
       color: var(--ink);
+    }
+    h1 .cursor {
       display: inline-block;
-      position: relative;
+      width: 0.55em;
+      height: 1em;
+      vertical-align: -0.11em;
+      background: var(--moss);
+      margin-left: 0.15em;
+      animation: blink 1.05s steps(1, end) infinite;
     }
-    /* Signature: hand-drawn moss stroke beneath the name */
-    h1 .name::after {
-      content: "";
-      position: absolute;
-      left: -0.05em;
-      right: -0.1em;
-      bottom: -0.22em;
-      height: 0.42em;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 40' preserveAspectRatio='none'><path d='M4 26 C 60 12, 110 32, 170 20 S 300 10, 396 22' fill='none' stroke='%232E6B3F' stroke-width='5' stroke-linecap='round'/></svg>");
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-      clip-path: inset(0 100% 0 0);
-      animation: sign 1.1s cubic-bezier(0.6, 0.05, 0.3, 1) 0.9s forwards;
-      pointer-events: none;
-    }
-    @keyframes sign {
-      to { clip-path: inset(0 0 0 0); }
-    }
-    /* Dark theme: swap stroke color inside the SVG data URI */
-    :root[data-theme="dark"] h1 .name::after {
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 40' preserveAspectRatio='none'><path d='M4 26 C 60 12, 110 32, 170 20 S 300 10, 396 22' fill='none' stroke='%2382C793' stroke-width='5' stroke-linecap='round'/></svg>");
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) h1 .name::after {
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 40' preserveAspectRatio='none'><path d='M4 26 C 60 12, 110 32, 170 20 S 300 10, 396 22' fill='none' stroke='%2382C793' stroke-width='5' stroke-linecap='round'/></svg>");
-      }
+    @keyframes blink {
+      0%, 50%   { opacity: 1; }
+      50.01%,100%{ opacity: 0; }
     }
 
-    .tagline {
+    .meta {
+      list-style: none;
       margin-top: 1.6rem;
-      color: var(--muted);
-      max-width: 32rem;
-      font-size: 1.06rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.94rem;
+      color: var(--dim);
     }
-    .tagline a {
+    .meta li {
+      padding-left: 1.4em;
+      position: relative;
+      margin-bottom: 0.2em;
+    }
+    .meta li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--moss);
+    }
+    .meta a {
       color: var(--ink);
       text-decoration: none;
-      border-bottom: 1.5px solid var(--moss);
+      border-bottom: 1px solid var(--moss);
       padding-bottom: 1px;
-      transition: background 0.15s ease;
     }
-    .tagline a:hover { background: var(--tint); }
+    .meta a:hover { background: var(--tint); }
 
-    .locus {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55em;
-      margin-top: 1.4rem;
-      padding: 0.35em 0.85em 0.35em 0.7em;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: transparent;
-      color: var(--muted);
-      font-family: "IBM Plex Mono", ui-monospace, monospace;
-      font-size: 0.78rem;
-      letter-spacing: 0.02em;
-    }
-    .locus .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--sprout);
-      box-shadow: 0 0 0 0 var(--sprout);
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sprout) 50%, transparent); }
-      50%      { box-shadow: 0 0 0 6px color-mix(in srgb, var(--sprout) 0%, transparent); }
-    }
-
-    /* ── Sections ────────────────────────────── */
-    section { padding: 2.2rem 0; }
+    /* ── Sections ───────────────────────────── */
+    section { padding: 2rem 0; }
 
     .label {
       font-family: "IBM Plex Mono", ui-monospace, monospace;
       color: var(--moss);
-      font-size: 0.78rem;
+      font-size: 0.86rem;
       font-weight: 500;
-      letter-spacing: 0.02em;
-      margin-bottom: 1.15rem;
-    }
-    .label::before {
-      content: "// ";
-      opacity: 0.65;
+      margin-bottom: 1rem;
+      letter-spacing: 0.005em;
     }
 
-    section p { max-width: 36rem; }
+    section p { max-width: 34rem; }
 
-    /* Leaf bullets */
-    ul.leaves { list-style: none; }
-    ul.leaves li {
+    p.empty {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      color: var(--dim);
+      font-size: 0.9rem;
+    }
+
+    /* ── Tree list for research ─────────────── */
+    ul.tree {
+      list-style: none;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.96rem;
+      color: var(--ink);
+    }
+    ul.tree li {
+      padding-left: 2.2em;
       position: relative;
-      padding-left: 1.7em;
-      margin-bottom: 0.55em;
+      margin-bottom: 0.1em;
+      line-height: 1.75;
     }
-    ul.leaves li::before {
-      content: "";
+    ul.tree li::before {
+      content: "├──";
       position: absolute;
-      left: 2px;
-      top: 0.7em;
-      width: 12px;
-      height: 8px;
-      background: var(--sprout);
-      border-radius: 0 100% 0 100% / 0 100% 0 100%;
-      transform: rotate(-18deg);
-      transform-origin: left center;
+      left: 0;
+      color: var(--dim);
     }
+    ul.tree li:last-child::before { content: "└──"; }
 
-    /* ── Chips (elsewhere) ─────────────────── */
+    /* ── Chips: bracketed mono ──────────────── */
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-top: 0.2rem;
+      gap: 0.55rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.92rem;
     }
     .chip {
       display: inline-flex;
-      align-items: center;
-      gap: 0.4em;
-      padding: 0.55em 1.1em;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: transparent;
+      align-items: baseline;
+      padding: 0.35em 0.15em;
       color: var(--ink);
-      font-weight: 500;
       text-decoration: none;
-      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
     }
-    .chip::before {
-      font-family: "IBM Plex Mono", ui-monospace, monospace;
-      color: var(--moss);
-      font-weight: 500;
-      opacity: 0.9;
-    }
-    .chip[data-kind="git"]::before   { content: "gh"; }
-    .chip[data-kind="mail"]::before  { content: "@"; }
-    .chip[data-kind="lab"]::before   { content: "↳"; }
-    .chip:hover {
-      background: var(--tint);
-      border-color: var(--moss);
-      transform: translateY(-1px);
-    }
-
-    .chip:focus-visible,
-    a:focus-visible {
-      outline: 2.5px solid var(--moss);
-      outline-offset: 3px;
-      border-radius: 6px;
-    }
+    .chip::before { content: "[ "; color: var(--dim); }
+    .chip::after  { content: " ]"; color: var(--dim); }
+    .chip:hover { color: var(--moss); border-bottom-color: var(--moss); }
+    .chip:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; border-radius: 2px; }
 
     /* ── Footer ─────────────────────────────── */
     footer {
       margin-top: 3rem;
-      padding: 1.8rem 0 3rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    footer .version {
+      padding: 1.6rem 0 3rem;
+      border-top: 1px solid var(--line);
       font-family: "IBM Plex Mono", ui-monospace, monospace;
-      font-size: 0.75rem;
-      opacity: 0.75;
+      color: var(--dim);
+      font-size: 0.78rem;
+      line-height: 1.9;
     }
+    footer .eof { color: var(--moss); }
 
     /* ── Reduced motion ─────────────────────── */
     @media (prefers-reduced-motion: reduce) {
-      .sprout .stem { animation: none; stroke-dashoffset: 0; }
-      .sprout .leaf { animation: none; opacity: 1; transform: none; }
-      h1 .name::after { animation: none; clip-path: inset(0 0 0 0); }
-      .locus .dot { animation: none; }
+      h1 .cursor { animation: none; opacity: 1; }
       html { scroll-behavior: auto; }
       .chip, .toggle, body { transition: none; }
     }
@@ -422,87 +365,114 @@
 
 <body>
 
-  <button
-    class="toggle"
-    type="button"
-    id="theme-toggle"
-    aria-label="Switch to dark mode"
-    title="Switch theme"
-  >
-    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
-    </svg>
-    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4"/>
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
-    </svg>
-  </button>
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <nav class="nav" aria-label="Sections">
+        <a href="#about">about</a>
+        <a href="#research">research</a>
+        <a href="#papers">papers</a>
+        <a href="#writing">writing</a>
+        <a href="#resume">resume</a>
+        <a href="#elsewhere">elsewhere</a>
+      </nav>
+      <button
+        class="toggle"
+        type="button"
+        id="theme-toggle"
+        aria-label="Switch to dark mode"
+        title="Switch theme"
+      >
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
 
   <div class="wrap">
 
     <!-- ═══════════ ✏️ 여기부터 내용을 수정하세요 ═══════════ -->
 
     <header class="hero">
-      <!-- 새싹 그림 (첫 홈페이지 기념 🌱) -->
-      <svg class="sprout" viewBox="0 0 64 64" aria-hidden="true">
-        <path class="stem" d="M32 60 C32 48 33 40 33 30 C 33 24, 34 20, 34 16" />
-        <path class="leaf leaf-a" d="M32.5 38 C24 36 18 30 17 21 C26 22 31.5 29 32.5 38 Z" fill="var(--moss)"/>
-        <path class="leaf leaf-b" d="M33 32 C34 23 40 16 48 14 C47.5 24 41 30.5 33 32 Z" fill="var(--sprout)"/>
-      </svg>
+      <p class="file-note"># <span class="path">~/index.html</span> · personal notes, work-in-progress</p>
 
-      <p class="eyebrow">welcome</p>
+      <span class="prompt"><span class="sigil">$</span><span class="host">whoami</span></span>
 
-      <h1>Hi, I'm <span class="name">Hyoungjun Jeon</span></h1>
+      <h1>Hyoungjun Jeon<span class="cursor" aria-hidden="true"></span></h1>
 
-      <!-- ✏️ 직함이 정해져 있으면 바꿔주세요 (예: an M.S. student at / a Ph.D. student at / a researcher at) -->
-      <p class="tagline">
-        I work at <a href="https://secai.skku.edu">SecAI Lab</a> at
-        Sungkyunkwan University (SKKU) in Suwon, South Korea.
-      </p>
-
-      <span class="locus" aria-label="Currently at SecAI Lab, Suwon">
-        <span class="dot" aria-hidden="true"></span>
-        SecAI Lab · Suwon, KR
-      </span>
+      <!-- ✏️ 직함이 정해져 있으면 바꿔주세요 (예: M.S. student / Ph.D. student / researcher) -->
+      <ul class="meta">
+        <li><a href="https://secai.skku.edu">SecAI Lab</a>, Sungkyunkwan University (SKKU)</li>
+      </ul>
     </header>
 
     <main>
-      <section>
-        <p class="label">about</p>
+      <section id="about">
+        <p class="label">~/about</p>
         <!-- ✏️ 자기소개 문단 — 자유롭게 수정하세요 -->
         <p>
           I'm a member of SecAI Lab, a security research group in the
           Department of Computer Science and Engineering at Sungkyunkwan
           University. This site is where I'll collect what I'm working on
-          and thinking about.
+          and thinking about — mostly at the intersection of security and
+          machine learning.
         </p>
       </section>
 
-      <section>
-        <p class="label">research</p>
+      <section id="research">
+        <p class="label">~/research</p>
         <!-- ✏️ 아래는 예시입니다 — 본인 연구 분야로 바꿔주세요 -->
-        <ul class="leaves">
+        <ul class="tree">
           <li>AI security</li>
           <li>Software &amp; binary analysis</li>
           <li>Machine learning</li>
         </ul>
       </section>
 
-      <section>
-        <p class="label">elsewhere</p>
+      <section id="papers">
+        <p class="label">~/papers</p>
+        <!-- ✏️ 논문이 생기면 아래 .empty 자리를 ul.tree 로 바꿔서 목록으로 넣으세요.
+             예:
+             <ul class="tree">
+               <li><a href="...">Paper title</a> — Venue, Year</li>
+             </ul>
+        -->
+        <p class="empty">// pending — no publications yet.</p>
+      </section>
+
+      <section id="writing">
+        <p class="label">~/writing</p>
+        <!-- ✏️ 블로그 글이나 노트가 생기면 아래 자리를 목록으로 바꾸세요. -->
+        <p class="empty">// pending — first entry on the way.</p>
+      </section>
+
+      <section id="resume">
+        <p class="label">~/resume</p>
+        <!-- ✏️ 이 링크가 작동하려면 저장소 루트에 resume.pdf 파일을 올리세요. -->
+        <div class="chips">
+          <a class="chip" href="./resume.pdf" rel="noopener">resume.pdf</a>
+        </div>
+      </section>
+
+      <section id="elsewhere">
+        <p class="label">~/elsewhere</p>
         <div class="chips">
           <!-- ✏️ "your-id"를 본인 깃허브 아이디로 바꿔주세요 -->
-          <a class="chip" data-kind="git" href="https://github.com/CodingJune20" rel="me noopener">GitHub</a>
+          <a class="chip" href="https://github.com/CodingJune20" rel="me noopener">github</a>
           <!-- ✏️ 본인 이메일 주소로 바꿔주세요 -->
-          <a class="chip" data-kind="mail" href="mailto:wnssad0202@g.skku.edu">Email</a>
-          <a class="chip" data-kind="lab" href="https://secai.skku.edu" rel="noopener">SecAI Lab</a>
+          <a class="chip" href="mailto:wnssad0202@g.skku.edu">email</a>
+          <a class="chip" href="https://secai.skku.edu" rel="noopener">secai lab</a>
         </div>
       </section>
     </main>
 
     <footer>
-      <span>© 2026 Hyoungjun Jeon · Built with GitHub Pages 🌱</span>
-      <span class="version">v.001</span>
+      <div># © 2026 Hyoungjun Jeon · built with GitHub Pages 🌱 seedling site · v.001</div>
+      <div class="eof"># EOF</div>
     </footer>
 
   </div>
@@ -522,7 +492,7 @@
 
       function syncMeta() {
         var t = effectiveTheme();
-        if (meta) meta.setAttribute('content', t === 'dark' ? '#0B120F' : '#EEF2E7');
+        if (meta) meta.setAttribute('content', t === 'dark' ? '#0C1310' : '#EEF0E7');
         var next = t === 'dark' ? 'light' : 'dark';
         btn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
         btn.setAttribute('title', 'Switch to ' + next + ' mode');
@@ -535,12 +505,51 @@
         syncMeta();
       });
 
-      // Follow the system if the user hasn't chosen manually.
       mql.addEventListener('change', function () {
         if (!root.getAttribute('data-theme')) syncMeta();
       });
 
       syncMeta();
+    })();
+
+    /* ── Sticky topbar: hairline on scroll, active-section highlight ── */
+    (function () {
+      var topbar = document.getElementById('topbar');
+      var links  = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+      var byHash = {};
+      links.forEach(function (a) { byHash[a.getAttribute('href').slice(1)] = a; });
+
+      // Hairline appears once the user starts scrolling
+      function onScroll() {
+        topbar.classList.toggle('scrolled', window.scrollY > 6);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // Active section tracking
+      if ('IntersectionObserver' in window) {
+        var visible = new Set();
+        var order = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere'];
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) visible.add(e.target.id);
+            else                  visible.delete(e.target.id);
+          });
+          var current = order.find(function (id) { return visible.has(id); });
+          links.forEach(function (a) { a.classList.remove('active'); });
+          if (current && byHash[current]) {
+            byHash[current].classList.add('active');
+            byHash[current].setAttribute('aria-current', 'true');
+            links.forEach(function (a) {
+              if (a !== byHash[current]) a.removeAttribute('aria-current');
+            });
+          }
+        }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+        document.querySelectorAll('main section[id]').forEach(function (s) {
+          io.observe(s);
+        });
+      }
     })();
   </script>
 </body>
