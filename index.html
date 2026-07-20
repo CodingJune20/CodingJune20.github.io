@@ -25,6 +25,8 @@
   <meta property="og:description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
   <meta property="og:url" content="https://codingjune20.github.io/" />
   <meta name="twitter:card" content="summary" />
+  <!-- ctf: flag{page_source_scanned} -->
+  <meta name="ctf-hint" content="you scanned the source. good." />
 
   <!-- Inline SVG favicon (sprout 🌱) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 60 C32 48 33 40 33 30' fill='none' stroke='%232E6B3F' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32.5 38 C24 36 18 30 17 21 C26 22 31.5 29 32.5 38 Z' fill='%2335854A'/%3E%3Cpath d='M33 32 C34 23 40 16 48 14 C47.5 24 41 30.5 33 32 Z' fill='%2357A86A'/%3E%3C/svg%3E" />
@@ -672,18 +674,20 @@
         '.hidden':     'flag{seedling_site_v001}\n—— run `submit flag{...}` to clear level 1.',
       };
 
-      /* ── Mini CTF: 3 levels, answers stored as SHA-256 only ── */
+      /* ── Mini CTF: 7 levels, answers stored as SHA-256 only ── */
       var GAME = {
-        order: [1, 2, 3],
+        order: [1, 2, 3, 4, 5, 6, 7],
         levels: {
           1: {
             title:  'Discovery',
+            domain: 'other',
             prompt: 'level 1: a flag is hidden on this filesystem.\nhint: `ls -a`, then `cat` the interesting one.',
             hint:   'hidden files often start with a dot. `ls -a` shows them.',
             hash:   'd66a4ba6082c1725c99b7b90fec534ff98cd10e56af3d30e465ec2a13a37667f',
           },
           2: {
             title:  'Caesar',
+            domain: 'crypto',
             prompt: [
               'level 2 — classical cipher.',
               '',
@@ -696,6 +700,7 @@
           },
           3: {
             title:  'Single-byte XOR',
+            domain: 'crypto',
             prompt: [
               'level 3 — single-byte XOR.',
               '',
@@ -706,6 +711,67 @@
             ].join('\n'),
             hint:   'XOR is symmetric. key = plaintext ^ ciphertext. use the known prefix `f` (0x66) against the first ciphertext byte (0x24) to recover the key, then decode the rest.',
             hash:   '921c388adfb7b4c517b2cf154a68003def7fb7ca60962526245383b276107311',
+          },
+          4: {
+            title:  'Repeating-key XOR',
+            domain: 'crypto',
+            prompt: [
+              'level 4 — repeating-key XOR (Vigenère-style).',
+              '',
+              '  hex: 15 09 02 06 12 05 0c 04 04 07 16 17 06 3e 02 16 1c 10 3e 1b 16 15 06 00 1d 0e',
+              '',
+              'the key is a short word repeated. the plaintext starts with `flag{`.',
+              'submit the decoded plaintext.',
+            ].join('\n'),
+            hint:   'XOR the first 5 ciphertext bytes against `flag{` byte-by-byte to recover the key. those bytes should spell something readable — the key length is the period. cycle it to decode the rest.',
+            hash:   'aeac0aebb4a4554e5e8c4cbe07c70142e7fd11abdefc79d5a16dc8726ce27635',
+          },
+          5: {
+            title:  'Textbook RSA',
+            domain: 'crypto',
+            prompt: [
+              'level 5 — textbook RSA (byte-by-byte).',
+              '',
+              '  N = 143    e = 7',
+              '  ciphertext (integers, one per byte):',
+              '    119 4 59 38 7 129 118 33 121 17 49 80 59 5',
+              '',
+              'each integer decrypts to one ASCII byte of the flag.',
+              'you will want a script or a calculator with modpow.',
+            ].join('\n'),
+            hint:   'factor N → (p, q). φ(N) = (p-1)(q-1). d = e⁻¹ mod φ(N). plaintext byte = c^d mod N. python: `pow(c, d, N)` in one line.',
+            hash:   '9d998e4cb27858b71081588a06803071ccb66823991aaf68a6c0048e9b9139fb',
+          },
+          6: {
+            title:  'Recon (this page)',
+            domain: 'other',
+            prompt: [
+              'level 6 — recon.',
+              '',
+              'a flag is stashed somewhere in THIS page\'s own source (not on this line).',
+              'browsers give you two knives for this: View Source and DevTools.',
+            ].join('\n'),
+            hint:   'look near the top of the HTML. HTML comments (<!-- ... -->) and <meta> tags don\'t show on the page but sit in the source.',
+            hash:   '2bc6f688f13833e1c618c3f595b0ee8b013ef432ae6d9fcdf6e1ddbe55dee518',
+          },
+          7: {
+            title:  'Log forensics',
+            domain: 'other',
+            prompt: [
+              'level 7 — log forensics. sshd auth log:',
+              '',
+              '  2026-05-14 08:12:03 sshd[2001]: Accepted publickey for hjjeon from 192.168.1.42 port 51234',
+              '  2026-05-14 08:15:11 sshd[2103]: Accepted publickey for hjjeon from 192.168.1.42 port 51235',
+              '  2026-05-15 09:44:22 sshd[2201]: Failed password for hjjeon from 203.0.113.7 port 44212',
+              '  2026-05-15 09:44:24 sshd[2201]: Failed password for hjjeon from 203.0.113.7 port 44212',
+              '  2026-05-15 09:44:25 sshd[2201]: Failed password for hjjeon from 203.0.113.7 port 44212',
+              '  2026-05-15 09:44:28 sshd[2201]: Accepted password for hjjeon from 203.0.113.7 port 44212',
+              '  2026-05-15 10:00:14 sshd[2301]: Accepted publickey for hjjeon from 192.168.1.42 port 51236',
+              '',
+              'one login here looks compromised. submit  flag{<intruder-IP>}.',
+            ].join('\n'),
+            hint:   'the account normally logs in with publickey from a private LAN address. one line breaks that pattern — a password login that succeeded right after repeated failures.',
+            hash:   '99d81c1b5b86d012dfe12ed88fee397d2702de92bda66f1df3e86245b6dc35f5',
           },
         },
       };
@@ -782,12 +848,12 @@
             '  sudo <cmd>              nope',
             '  exit                    also nope',
             '',
-            'mini-ctf:',
-            '  find-flag               intro to the puzzle (3 levels)',
+            'mini-ctf (7 levels · crypto + other):',
+            '  find-flag               intro to the puzzle',
             '  challenge [n]           show current or given challenge',
             '  submit <flag>           submit a flag',
             '  hint                    hint for the current level',
-            '  progress                cleared / remaining',
+            '  progress                cleared / remaining, grouped by domain',
             '  reset                   wipe progress and replay',
           ].join('\n');
         },
@@ -855,8 +921,11 @@
           return [
             'welcome to the ~/play mini-ctf.',
             '',
-            '3 levels: discovery → caesar → xor.',
-            'commands you\'ll want:  challenge  submit  hint  progress  reset',
+            '7 levels · 2 domains:',
+            '  crypto : L2, L3, L4, L5    — caesar, xor, rep-xor, rsa',
+            '  other  : L1, L6, L7        — filesystem, page-source recon, log forensics',
+            '',
+            'commands:  challenge [n]  submit <flag>  hint  progress  reset',
             '',
             'level 1 is loaded. type `challenge` for the brief, or start with `ls -a`.',
           ].join('\n');
@@ -891,7 +960,7 @@
             append('✓ level ' + matched + ' (' + GAME.levels[matched].title + ') — cleared.');
             var next = currentLevel();
             if (next) append('next: challenge ' + next + '. type `challenge` to see it.', 'dim');
-            else      append('all 3 levels cleared. thanks for playing.', 'dim');
+            else      append('all 7 levels cleared. thanks for playing.', 'dim');
             scrollBottom();
           }).catch(function () {
             append('submit: could not compute hash in this browser.', 'err');
@@ -906,13 +975,24 @@
         },
         progress: function () {
           var lines = ['progress:'];
+          var domainsOrder = ['crypto', 'other'];
+          var buckets = { crypto: [], other: [] };
           GAME.order.forEach(function (n) {
-            var mark = progress.has(n) ? '[✓]' : '[ ]';
-            lines.push('  ' + mark + ' level ' + n + ' — ' + GAME.levels[n].title);
+            var d = GAME.levels[n].domain || 'other';
+            (buckets[d] || (buckets[d] = [])).push(n);
+          });
+          domainsOrder.forEach(function (d) {
+            if (!buckets[d] || !buckets[d].length) return;
+            lines.push('');
+            lines.push(d + ':');
+            buckets[d].forEach(function (n) {
+              var mark = progress.has(n) ? '[✓]' : '[ ]';
+              lines.push('  ' + mark + ' L' + n + ' — ' + GAME.levels[n].title);
+            });
           });
           var cur = currentLevel();
           lines.push('');
-          lines.push(cur ? 'current: level ' + cur : 'all cleared. `reset` to replay.');
+          lines.push(cur ? 'current: L' + cur : 'all cleared. `reset` to replay.');
           return lines.join('\n');
         },
         reset: function () {
