@@ -310,6 +310,52 @@
       font-size: 0.9rem;
     }
 
+    /* ── Toy terminal (~/play) ─────────────── */
+    .term {
+      margin-top: 0.35rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--paper) 96%, transparent);
+      padding: 0.85rem 1rem;
+      height: 22rem;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--ink);
+      cursor: text;
+    }
+    .term-out > div { white-space: pre-wrap; word-break: break-word; }
+    .term-out .err { color: #B95430; }
+    :root[data-theme="dark"] .term-out .err { color: #E58A65; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .term-out .err { color: #E58A65; }
+    }
+    .term-out .dim { color: var(--dim); }
+    .term-prompt { color: var(--moss); user-select: none; white-space: pre; }
+    .term-line { display: flex; align-items: baseline; margin-top: 0.05rem; }
+    .term-input {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: inherit;
+      caret-color: var(--moss);
+      padding: 0;
+      min-width: 0;
+    }
+    .term::-webkit-scrollbar { width: 6px; }
+    .term::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+    .term-hint {
+      color: var(--dim);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.78rem;
+      margin-top: 0.55rem;
+    }
+
     /* ── Tree list for research ─────────────── */
     ul.tree {
       list-style: none;
@@ -385,6 +431,7 @@
         <a href="#writing">writing</a>
         <a href="#resume">resume</a>
         <a href="#elsewhere">elsewhere</a>
+        <a href="#play">play</a>
       </nav>
       <button
         class="toggle"
@@ -479,6 +526,28 @@
           <a class="chip" href="https://secai.skku.edu" rel="noopener">secai lab</a>
         </div>
       </section>
+
+      <section id="play">
+        <p class="label">~/play</p>
+        <div class="term" id="term">
+          <div class="term-out" id="term-out"></div>
+          <div class="term-line">
+            <span class="term-prompt">hjjeon@site:~$&nbsp;</span>
+            <input
+              id="term-input"
+              class="term-input"
+              type="text"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="200"
+              aria-label="Shell input"
+            />
+          </div>
+        </div>
+        <p class="term-hint">try `help` · ↑/↓ history · Tab autocomplete · Ctrl+L clear</p>
+      </section>
     </main>
 
     <footer>
@@ -509,11 +578,17 @@
         btn.setAttribute('title', 'Switch to ' + next + ' mode');
       }
 
-      btn.addEventListener('click', function () {
-        var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('theme', next); } catch (e) {}
+      function applyTheme(mode) {
+        if (mode !== 'light' && mode !== 'dark') return false;
+        root.setAttribute('data-theme', mode);
+        try { localStorage.setItem('theme', mode); } catch (e) {}
         syncMeta();
+        return true;
+      }
+      window.__siteApplyTheme = applyTheme;
+
+      btn.addEventListener('click', function () {
+        applyTheme(effectiveTheme() === 'dark' ? 'light' : 'dark');
       });
 
       mql.addEventListener('change', function () {
@@ -527,7 +602,7 @@
     (function () {
       var topbar = document.getElementById('topbar');
       var links  = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
-      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere'];
+      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere', 'play'];
       var byHash = {};
       var sections = {};
       links.forEach(function (a) { byHash[a.getAttribute('href').slice(1)] = a; });
@@ -551,6 +626,7 @@
             else    byHash[k].removeAttribute('aria-current');
           }
         });
+        window.dispatchEvent(new CustomEvent('section-activated', { detail: { id: id } }));
       }
 
       links.forEach(function (a) {
@@ -570,6 +646,386 @@
       });
 
       activate((location.hash || '#about').slice(1));
+    })();
+
+    /* ── Toy shell in ~/play (client-only, static commands) ── */
+    (function () {
+      var term    = document.getElementById('term');
+      var termOut = document.getElementById('term-out');
+      var termIn  = document.getElementById('term-input');
+      if (!term || !termOut || !termIn) return;
+
+      var owns   = Object.prototype.hasOwnProperty;
+      var NAME   = 'Hyoungjun Jeon';
+      var PROMPT = 'hjjeon@site:~$ ';
+
+      var history = [];
+      var histIdx = -1;
+
+      var FILES = {
+        'about.md':    'Member of SecAI Lab at Sungkyunkwan University (SKKU).\nInterested in the intersection of security and machine learning.',
+        'research.md': '- AI security\n- Software & binary analysis\n- Machine learning',
+        'papers.md':   '// pending — no publications yet.',
+        'writing.md':  '// pending — first entry on the way.',
+        'resume.md':   'see: [ resume.pdf ] — will link once uploaded to the repo root.',
+        '.bashrc':     '# nothing to see here. or is there? (start the game with `find-flag`)',
+        '.hidden':     'flag{seedling_site_v001}\n—— run `submit flag{...}` to clear level 1.',
+      };
+
+      /* ── Mini CTF: 3 levels, answers stored as SHA-256 only ── */
+      var GAME = {
+        order: [1, 2, 3],
+        levels: {
+          1: {
+            title:  'Discovery',
+            prompt: 'level 1: a flag is hidden on this filesystem.\nhint: `ls -a`, then `cat` the interesting one.',
+            hint:   'hidden files often start with a dot. `ls -a` shows them.',
+            hash:   'd66a4ba6082c1725c99b7b90fec534ff98cd10e56af3d30e465ec2a13a37667f',
+          },
+          2: {
+            title:  'Caesar',
+            prompt: [
+              'level 2 — classical cipher.',
+              '',
+              '  iodj{fdhvdu_iurp_vhfdl}',
+              '',
+              'decode the plaintext flag and submit it.',
+            ].join('\n'),
+            hint:   'Caesar shift on lowercase a-z. try a small shift. underscores and braces are untouched.',
+            hash:   '5f5b1148d7d95a492be7a3d0093b45b1b684bc481dbd4fc22eaec90824ac21e8',
+          },
+          3: {
+            title:  'Single-byte XOR',
+            prompt: [
+              'level 3 — single-byte XOR.',
+              '',
+              '  hex: 24 2e 23 25 39 3a 2d 30 1d 35 23 29 27 37 32 1d 21 23 2e 2e 3f',
+              '',
+              'known plaintext prefix: the answer starts with `flag`.',
+              'submit the decoded plaintext.',
+            ].join('\n'),
+            hint:   'XOR is symmetric. key = plaintext ^ ciphertext. use the known prefix `f` (0x66) against the first ciphertext byte (0x24) to recover the key, then decode the rest.',
+            hash:   '921c388adfb7b4c517b2cf154a68003def7fb7ca60962526245383b276107311',
+          },
+        },
+      };
+
+      var progress = new Set();
+      try {
+        JSON.parse(localStorage.getItem('play.progress') || '[]')
+          .forEach(function (n) { progress.add(n); });
+      } catch (e) {}
+
+      function saveProgress() {
+        try {
+          localStorage.setItem('play.progress', JSON.stringify(Array.from(progress).sort()));
+        } catch (e) {}
+      }
+      function currentLevel() {
+        for (var i = 0; i < GAME.order.length; i++) {
+          if (!progress.has(GAME.order[i])) return GAME.order[i];
+        }
+        return null;
+      }
+      function sha256Hex(text) {
+        if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) {
+          return Promise.reject(new Error('SubtleCrypto unavailable'));
+        }
+        var buf = new TextEncoder().encode(text);
+        return window.crypto.subtle.digest('SHA-256', buf).then(function (h) {
+          var arr = new Uint8Array(h);
+          var out = '';
+          for (var i = 0; i < arr.length; i++) {
+            out += ('0' + arr[i].toString(16)).slice(-2);
+          }
+          return out;
+        });
+      }
+
+      /* ── DOM helpers — always use textContent for anything user-influenced ── */
+      function append(text, cls) {
+        var line = document.createElement('div');
+        if (cls) line.className = cls;
+        line.textContent = text == null ? '' : String(text);
+        termOut.appendChild(line);
+      }
+      function appendPrompt(cmd) {
+        var line = document.createElement('div');
+        var p = document.createElement('span');
+        p.className = 'term-prompt';
+        p.textContent = PROMPT;
+        line.appendChild(p);
+        line.appendChild(document.createTextNode(cmd));
+        termOut.appendChild(line);
+      }
+      function clearOut() { while (termOut.firstChild) termOut.removeChild(termOut.firstChild); }
+      function scrollBottom() { term.scrollTop = term.scrollHeight; }
+
+      /* ── Commands: return string (ok), {err:true, text:...}, or null (silent) ── */
+      var COMMANDS = {
+        help: function () {
+          return [
+            'commands:',
+            '  help                    show this list',
+            '  whoami                  who you\'re looking at',
+            '  pwd                     current path',
+            '  ls [-a]                 list files',
+            '  cat <file>              show a file',
+            '  date                    current date',
+            '  echo <text>             echo text back',
+            '  nmap localhost          scan ports (fake, for fun)',
+            '  xxd whoami              name as bytes',
+            '  history                 command history',
+            '  clear                   clear the screen  (Ctrl+L)',
+            '  theme <light|dark>      switch site theme',
+            '  open <section>          jump to a nav tab',
+            '  sudo <cmd>              nope',
+            '  exit                    also nope',
+            '',
+            'mini-ctf:',
+            '  find-flag               intro to the puzzle (3 levels)',
+            '  challenge [n]           show current or given challenge',
+            '  submit <flag>           submit a flag',
+            '  hint                    hint for the current level',
+            '  progress                cleared / remaining',
+            '  reset                   wipe progress and replay',
+          ].join('\n');
+        },
+        whoami: function () { return NAME; },
+        pwd:    function () { return '/home/hjjeon'; },
+        ls: function (args) {
+          var all = ['about.md','research.md','papers.md','writing.md','resume.md'];
+          var hidden = ['.bashrc','.hidden'];
+          if (args[0] === '-a' || args[0] === '-la' || args[0] === '-al') {
+            return hidden.concat(all).join('  ');
+          }
+          return all.join('  ');
+        },
+        cat: function (args) {
+          if (!args[0]) return { err: true, text: 'cat: missing operand — try `cat about.md`' };
+          var f = args[0];
+          if (owns.call(FILES, f)) return FILES[f];
+          return { err: true, text: 'cat: ' + f + ': No such file' };
+        },
+        date: function () { return new Date().toString(); },
+        echo: function (args) { return args.join(' '); },
+        nmap: function (args) {
+          var t = args[0];
+          if (t !== 'localhost' && t !== '127.0.0.1') {
+            return { err: true, text: 'nmap: only localhost is scanned here.' };
+          }
+          return [
+            'Starting Nmap (fake) at ' + new Date().toLocaleTimeString(),
+            'Nmap scan report for localhost (127.0.0.1)',
+            'Host is up (0.000042s latency).',
+            '',
+            'PORT     STATE  SERVICE',
+            '22/tcp   open   ssh',
+            '80/tcp   open   http',
+            '443/tcp  open   https',
+            '2222/tcp open   coffee',
+            '4242/tcp open   answer',
+            '',
+            'Nmap done: 1 host scanned in 0.03s.',
+          ].join('\n');
+        },
+        xxd: function (args) {
+          if (args[0] !== 'whoami' && args[0] !== 'name') {
+            return { err: true, text: 'xxd: try `xxd whoami`' };
+          }
+          var bytes = [];
+          for (var i = 0; i < NAME.length; i++) {
+            bytes.push(('0' + NAME.charCodeAt(i).toString(16)).slice(-2));
+          }
+          var out = [];
+          for (var j = 0; j < bytes.length; j += 8) {
+            var chunk = bytes.slice(j, j + 8);
+            var ascii = NAME.slice(j, j + 8).replace(/[^\x20-\x7e]/g, '.');
+            var off = ('0000000' + j.toString(16)).slice(-8);
+            out.push(off + ': ' + chunk.join(' ') + '  ' + ascii);
+          }
+          return out.join('\n');
+        },
+        history: function () {
+          if (!history.length) return '(empty)';
+          return history.map(function (h, i) { return (' ' + (i + 1)).slice(-3) + '  ' + h; }).join('\n');
+        },
+        clear: function () { clearOut(); return null; },
+        'find-flag': function () {
+          return [
+            'welcome to the ~/play mini-ctf.',
+            '',
+            '3 levels: discovery → caesar → xor.',
+            'commands you\'ll want:  challenge  submit  hint  progress  reset',
+            '',
+            'level 1 is loaded. type `challenge` for the brief, or start with `ls -a`.',
+          ].join('\n');
+        },
+        challenge: function (args) {
+          var n = args[0] ? parseInt(args[0], 10) : currentLevel();
+          if (!n) return 'all levels cleared. `progress` for summary or `reset` to replay.';
+          var lvl = GAME.levels[n];
+          if (!lvl) return { err: true, text: 'challenge: no such level: ' + args[0] };
+          var lines = ['challenge ' + n + ' — ' + lvl.title];
+          if (progress.has(n)) lines.push('(already cleared)');
+          lines.push('');
+          lines.push(lvl.prompt);
+          return lines.join('\n');
+        },
+        submit: function (args) {
+          var flag = args.join(' ').trim();
+          if (!flag) return { err: true, text: 'submit: missing flag' };
+          sha256Hex(flag).then(function (h) {
+            var matched = null;
+            for (var i = 0; i < GAME.order.length; i++) {
+              var n = GAME.order[i];
+              if (GAME.levels[n].hash === h) { matched = n; break; }
+            }
+            if (!matched) { append('no match. try harder.', 'err'); scrollBottom(); return; }
+            if (progress.has(matched)) {
+              append('level ' + matched + ' — already cleared.', 'dim');
+              scrollBottom(); return;
+            }
+            progress.add(matched);
+            saveProgress();
+            append('✓ level ' + matched + ' (' + GAME.levels[matched].title + ') — cleared.');
+            var next = currentLevel();
+            if (next) append('next: challenge ' + next + '. type `challenge` to see it.', 'dim');
+            else      append('all 3 levels cleared. thanks for playing.', 'dim');
+            scrollBottom();
+          }).catch(function () {
+            append('submit: could not compute hash in this browser.', 'err');
+            scrollBottom();
+          });
+          return null;
+        },
+        hint: function () {
+          var cur = currentLevel();
+          if (!cur) return 'no active level. try `reset`.';
+          return GAME.levels[cur].hint || 're-read the challenge carefully.';
+        },
+        progress: function () {
+          var lines = ['progress:'];
+          GAME.order.forEach(function (n) {
+            var mark = progress.has(n) ? '[✓]' : '[ ]';
+            lines.push('  ' + mark + ' level ' + n + ' — ' + GAME.levels[n].title);
+          });
+          var cur = currentLevel();
+          lines.push('');
+          lines.push(cur ? 'current: level ' + cur : 'all cleared. `reset` to replay.');
+          return lines.join('\n');
+        },
+        reset: function () {
+          progress.clear();
+          saveProgress();
+          return 'progress reset. type `challenge` to start over.';
+        },
+        theme: function (args) {
+          var m = (args[0] || '').toLowerCase();
+          if (m !== 'light' && m !== 'dark') {
+            return { err: true, text: 'theme: use `theme light` or `theme dark`' };
+          }
+          if (window.__siteApplyTheme) window.__siteApplyTheme(m);
+          return 'theme set to ' + m + '.';
+        },
+        open: function (args) {
+          var known = { about:1, research:1, papers:1, writing:1, resume:1, elsewhere:1, play:1 };
+          var t = (args[0] || '').replace(/^~\//, '').replace(/^#/, '').toLowerCase();
+          if (!owns.call(known, t)) {
+            return { err: true, text: 'open: unknown section: ' + (args[0] || '(empty)') };
+          }
+          if (('#' + t) !== location.hash) {
+            window.location.hash = '#' + t;
+          }
+          return 'opening ~/' + t + '...';
+        },
+        sudo: function () {
+          return { err: true, text: '[sudo] password for hjjeon: ***\nnice try. permission denied.' };
+        },
+        exit: function () { return "can't exit a static site. use the tab bar."; },
+      };
+
+      function run(input) {
+        appendPrompt(input);
+        var trimmed = input.trim();
+        if (!trimmed) { scrollBottom(); return; }
+        history.push(trimmed);
+        if (history.length > 100) history.shift();
+        histIdx = history.length;
+
+        var parts = trimmed.split(/\s+/);
+        var cmd = parts[0];
+        var args = parts.slice(1);
+
+        if (!owns.call(COMMANDS, cmd)) {
+          append('command not found: ' + cmd + ' — try `help`', 'err');
+          scrollBottom();
+          return;
+        }
+
+        var result;
+        try {
+          result = COMMANDS[cmd](args);
+        } catch (err) {
+          append('error while running `' + cmd + '`', 'err');
+          scrollBottom();
+          return;
+        }
+        if (result == null) { scrollBottom(); return; }
+        if (typeof result === 'string') append(result);
+        else if (result && result.err) append(result.text, 'err');
+        scrollBottom();
+      }
+
+      termIn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          var v = termIn.value;
+          termIn.value = '';
+          run(v);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!history.length) return;
+          if (histIdx > 0) histIdx--;
+          termIn.value = history[histIdx] || '';
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (histIdx < history.length - 1) {
+            histIdx++;
+            termIn.value = history[histIdx];
+          } else {
+            histIdx = history.length;
+            termIn.value = '';
+          }
+        } else if (e.key === 'l' && e.ctrlKey) {
+          e.preventDefault();
+          clearOut();
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          var v = termIn.value;
+          var matches = Object.keys(COMMANDS).filter(function (k) { return k.indexOf(v) === 0; });
+          if (matches.length === 1) termIn.value = matches[0];
+          else if (matches.length > 1) {
+            appendPrompt(v);
+            append(matches.join('  '));
+            scrollBottom();
+          }
+        }
+      });
+
+      // Clicking anywhere inside the terminal focuses the input
+      term.addEventListener('click', function (e) {
+        if (window.getSelection && String(window.getSelection())) return; // don't steal a text selection
+        termIn.focus();
+      });
+
+      // Auto-focus when the play tab becomes active
+      window.addEventListener('section-activated', function (e) {
+        if (e && e.detail && e.detail.id === 'play') {
+          setTimeout(function () { termIn.focus({ preventScroll: true }); }, 40);
+        }
+      });
+
+      append("welcome. type `help` for commands, or `ls`.", 'dim');
     })();
   </script>
 </body>
