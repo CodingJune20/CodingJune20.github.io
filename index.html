@@ -282,6 +282,17 @@
     /* ── Sections ───────────────────────────── */
     section { padding: 2rem 0; }
 
+    /* Tab-style routing: only the active main section shows */
+    main > section { display: none; }
+    main > section.active {
+      display: block;
+      animation: section-in 0.22s ease both;
+    }
+    @keyframes section-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .label {
       font-family: "IBM Plex Mono", ui-monospace, monospace;
       color: var(--moss);
@@ -512,12 +523,15 @@
       syncMeta();
     })();
 
-    /* ── Sticky topbar: hairline on scroll, active-section highlight ── */
+    /* ── Sticky topbar + hash-routed tab sections ── */
     (function () {
       var topbar = document.getElementById('topbar');
       var links  = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere'];
       var byHash = {};
+      var sections = {};
       links.forEach(function (a) { byHash[a.getAttribute('href').slice(1)] = a; });
+      order.forEach(function (id) { sections[id] = document.getElementById(id); });
 
       // Hairline appears once the user starts scrolling
       function onScroll() {
@@ -526,30 +540,36 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
 
-      // Active section tracking
-      if ('IntersectionObserver' in window) {
-        var visible = new Set();
-        var order = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere'];
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (e) {
-            if (e.isIntersecting) visible.add(e.target.id);
-            else                  visible.delete(e.target.id);
-          });
-          var current = order.find(function (id) { return visible.has(id); });
-          links.forEach(function (a) { a.classList.remove('active'); });
-          if (current && byHash[current]) {
-            byHash[current].classList.add('active');
-            byHash[current].setAttribute('aria-current', 'true');
-            links.forEach(function (a) {
-              if (a !== byHash[current]) a.removeAttribute('aria-current');
-            });
+      function activate(id) {
+        if (!sections[id]) id = 'about';
+        order.forEach(function (k) {
+          var on = (k === id);
+          if (sections[k]) sections[k].classList.toggle('active', on);
+          if (byHash[k]) {
+            byHash[k].classList.toggle('active', on);
+            if (on) byHash[k].setAttribute('aria-current', 'true');
+            else    byHash[k].removeAttribute('aria-current');
           }
-        }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
-
-        document.querySelectorAll('main section[id]').forEach(function (s) {
-          io.observe(s);
         });
       }
+
+      links.forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var id = a.getAttribute('href').slice(1);
+          if (('#' + id) !== location.hash) {
+            history.pushState(null, '', '#' + id);
+          }
+          activate(id);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      window.addEventListener('hashchange', function () {
+        activate((location.hash || '#about').slice(1));
+      });
+
+      activate((location.hash || '#about').slice(1));
     })();
   </script>
 </body>
