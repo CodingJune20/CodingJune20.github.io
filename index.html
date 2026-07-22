@@ -411,6 +411,147 @@
       margin-top: 0.55rem;
     }
 
+    /* ── Chef (~/chef): a mini cyberchef workspace ─────────── */
+    .chef-hint {
+      color: var(--dim);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    .chef {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .chef-panel {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--paper) 96%, transparent);
+      padding: 0.7rem 0.85rem;
+    }
+    .chef-panel-label {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      color: var(--dim);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .chef-io {
+      display: block;
+      width: 100%;
+      resize: vertical;
+      background: transparent;
+      color: var(--ink);
+      border: 1px dashed var(--line);
+      border-radius: 4px;
+      padding: 0.55rem 0.7rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      caret-color: var(--moss);
+      outline: none;
+    }
+    /* Defeat Mobile Safari's <16px auto-zoom on input focus */
+    @media (pointer: coarse) {
+      .chef-io { font-size: 16px; }
+    }
+    .chef-io:focus-visible {
+      outline: 2px solid var(--moss);
+      outline-offset: 2px;
+      border-color: var(--moss);
+    }
+    .chef-recipe {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.4rem;
+      min-height: 2rem;
+      padding: 0.35rem 0;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.85rem;
+    }
+    .chef-empty {
+      color: var(--dim);
+      font-style: italic;
+      align-self: center;
+    }
+    .chef-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.4rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--tint);
+      color: var(--ink);
+    }
+    .chef-step-name { color: var(--moss); }
+    .chef-step-arg {
+      width: 6ch;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px dashed var(--dim);
+      color: var(--ink);
+      font: inherit;
+      padding: 0 0.2rem;
+      outline: none;
+    }
+    .chef-step-arg:focus-visible {
+      border-bottom-color: var(--moss);
+    }
+    .chef-step-remove {
+      background: none;
+      border: 0;
+      color: var(--dim);
+      font: inherit;
+      cursor: pointer;
+      padding: 0 0.15rem;
+      line-height: 1;
+      border-radius: 3px;
+    }
+    .chef-step-remove:hover { color: var(--err); }
+    .chef-step-remove:focus-visible {
+      outline: 2px solid var(--moss);
+      outline-offset: 2px;
+    }
+    .chef-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-top: 0.55rem;
+      flex-wrap: wrap;
+    }
+    .chef-picker,
+    .chef-btn {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.35rem 0.6rem;
+      cursor: pointer;
+      min-height: 32px;
+    }
+    @media (pointer: coarse) {
+      .chef-picker,
+      .chef-btn { min-height: 44px; font-size: 16px; }
+    }
+    .chef-picker:hover,
+    .chef-btn:hover { border-color: var(--moss); }
+    .chef-picker:focus-visible,
+    .chef-btn:focus-visible {
+      outline: 2px solid var(--moss);
+      outline-offset: 2px;
+    }
+    .chef-status {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.78rem;
+      color: var(--dim);
+      min-height: 1em;
+    }
+    .chef-status.err { color: var(--err); }
+
     /* ── Tree list for research ─────────────── */
     ul.tree {
       list-style: none;
@@ -491,6 +632,7 @@
         <a href="#writing">writing</a>
         <a href="#resume">resume</a>
         <a href="#elsewhere">elsewhere</a>
+        <a href="#chef">chef</a>
         <a href="#play">play</a>
       </nav>
       <button
@@ -587,6 +729,37 @@
         </div>
       </section>
 
+      <section id="chef">
+        <h2 class="label">~/chef</h2>
+        <p class="chef-hint">a mini cyberchef. chain ops on your input; output updates live.</p>
+        <div class="chef">
+          <div class="chef-panel">
+            <div class="chef-panel-label">input</div>
+            <textarea id="chef-input" class="chef-io" rows="4" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="type or paste anything…" aria-label="Chef input"></textarea>
+          </div>
+          <div class="chef-panel">
+            <div class="chef-panel-label">recipe</div>
+            <div id="chef-recipe" class="chef-recipe" aria-live="polite" aria-atomic="false">
+              <span class="chef-empty">no ops yet — pick one below.</span>
+            </div>
+            <div class="chef-controls">
+              <select id="chef-op-picker" class="chef-picker" aria-label="Add op">
+                <option value="">+ add op…</option>
+              </select>
+              <button type="button" id="chef-clear" class="chef-btn">clear</button>
+            </div>
+          </div>
+          <div class="chef-panel">
+            <div class="chef-panel-label">output</div>
+            <textarea id="chef-output" class="chef-io" rows="4" readonly spellcheck="false" aria-label="Chef output"></textarea>
+            <div class="chef-controls">
+              <button type="button" id="chef-copy" class="chef-btn">copy</button>
+              <span id="chef-status" class="chef-status" aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="play">
         <h2 class="label">~/play</h2>
         <div class="term" id="term">
@@ -618,6 +791,106 @@
   </div>
 
   <script>
+    /* ── Shared toolkit: pure ops used by both the ~/play shell and the ~/chef page ── */
+    var TOOLKIT = (function () {
+      var enc = new TextEncoder();
+      var dec = new TextDecoder('utf-8', { fatal: false });
+
+      function b64e(text) {
+        var bytes = enc.encode(text);
+        var bin = '';
+        for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+      function b64d(text) {
+        var bin = atob(text);
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return dec.decode(bytes);
+      }
+      function str2hex(text) {
+        var bytes = enc.encode(text);
+        var out = [];
+        for (var i = 0; i < bytes.length; i++) out.push(('0' + bytes[i].toString(16)).slice(-2));
+        return out.join(' ');
+      }
+      function hex2str(text) {
+        text = String(text).replace(/\s+/g, '');
+        if (text.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(text)) throw new Error('input must be even-length hex.');
+        var bytes = new Uint8Array(text.length / 2);
+        for (var i = 0; i < bytes.length; i++) bytes[i] = parseInt(text.substr(i * 2, 2), 16);
+        return dec.decode(bytes);
+      }
+      function urlenc(text) { return encodeURIComponent(text); }
+      function urldec(text) { return decodeURIComponent(text); }
+      function rev(text) { return Array.from(String(text)).reverse().join(''); }
+      function upper(text) { return String(text).toUpperCase(); }
+      function lower(text) { return String(text).toLowerCase(); }
+      function rot(text, shift) {
+        var n = parseInt(shift, 10);
+        if (isNaN(n)) throw new Error('shift must be an integer.');
+        var s = ((n % 26) + 26) % 26;
+        return String(text).replace(/[a-zA-Z]/g, function (c) {
+          var base = c <= 'Z' ? 65 : 97;
+          return String.fromCharCode(((c.charCodeAt(0) - base + s) % 26) + base);
+        });
+      }
+      function xor(data, key) {
+        key = String(key).replace(/\s+/g, '');
+        data = String(data).replace(/\s+/g, '');
+        if (!/^[0-9a-fA-F]+$/.test(key)  || key.length  % 2 !== 0) throw new Error('key must be even-length hex.');
+        if (!/^[0-9a-fA-F]+$/.test(data) || data.length % 2 !== 0) throw new Error('data must be even-length hex.');
+        var kbytes = new Uint8Array(key.length / 2);
+        for (var i = 0; i < kbytes.length; i++) kbytes[i] = parseInt(key.substr(i * 2, 2), 16);
+        var dbytes = new Uint8Array(data.length / 2);
+        for (var j = 0; j < dbytes.length; j++) dbytes[j] = parseInt(data.substr(j * 2, 2), 16);
+        var out = [];
+        for (var k = 0; k < dbytes.length; k++) {
+          out.push(('0' + (dbytes[k] ^ kbytes[k % kbytes.length]).toString(16)).slice(-2));
+        }
+        return out.join(' ');
+      }
+      function hash(algo, text) {
+        if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('crypto.subtle unavailable.'));
+        return window.crypto.subtle.digest(algo, enc.encode(String(text))).then(function (h) {
+          var arr = new Uint8Array(h);
+          var out = '';
+          for (var i = 0; i < arr.length; i++) out += ('0' + arr[i].toString(16)).slice(-2);
+          return out;
+        });
+      }
+
+      /* Op registry. `run` returns a string (sync) or a Promise<string> (async).
+         `needsArg: true` marks ops that require a parameter. */
+      return {
+        sync: {
+          b64e:    { run: function (v)    { return b64e(v); } },
+          b64d:    { run: function (v)    { return b64d(v); } },
+          str2hex: { run: function (v)    { return str2hex(v); } },
+          hex2str: { run: function (v)    { return hex2str(v); } },
+          urlenc:  { run: function (v)    { return urlenc(v); } },
+          urldec:  { run: function (v)    { return urldec(v); } },
+          rev:     { run: function (v)    { return rev(v); } },
+          upper:   { run: function (v)    { return upper(v); } },
+          lower:   { run: function (v)    { return lower(v); } },
+          rot:     { needsArg: true, placeholder: 'shift',   run: function (v, a) { return rot(v, a); } },
+          xor:     { needsArg: true, placeholder: 'hex key', run: function (v, a) { return xor(v, a); } },
+        },
+        async: {
+          sha1:   { run: function (v) { return hash('SHA-1',   v); } },
+          sha256: { run: function (v) { return hash('SHA-256', v); } },
+          sha384: { run: function (v) { return hash('SHA-384', v); } },
+          sha512: { run: function (v) { return hash('SHA-512', v); } },
+        },
+        /* Metadata for the chef UI's op picker — grouped, in display order. */
+        groups: [
+          { label: 'encoding',  ops: ['b64e', 'b64d', 'str2hex', 'hex2str', 'urlenc', 'urldec'] },
+          { label: 'transform', ops: ['rev', 'upper', 'lower', 'rot', 'xor'] },
+          { label: 'hash',      ops: ['sha1', 'sha256', 'sha384', 'sha512'] },
+        ],
+      };
+    })();
+
     (function () {
       var root = document.documentElement;
       var btn  = document.getElementById('theme-toggle');
@@ -678,7 +951,7 @@
     (function () {
       var topbar = document.getElementById('topbar');
       var links  = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
-      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere', 'play'];
+      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere', 'chef', 'play'];
       var byHash = {};
       var sections = {};
       links.forEach(function (a) { byHash[a.getAttribute('href').slice(1)] = a; });
@@ -1218,7 +1491,7 @@
           return 'theme set to ' + m + '.';
         },
         open: function (args) {
-          var known = { about:1, research:1, papers:1, writing:1, resume:1, elsewhere:1, play:1 };
+          var known = { about:1, research:1, papers:1, writing:1, resume:1, elsewhere:1, chef:1, play:1 };
           var t = (args[0] || '').replace(/^~\//, '').replace(/^#/, '').toLowerCase();
           if (!owns.call(known, t)) {
             return { err: true, text: 'open: unknown section: ' + (args[0] || '(empty)') };
@@ -1231,92 +1504,28 @@
           }
           return 'opening ~/' + t + '...';
         },
-        /* ── cyberchef-lite: encode / decode / transform / hash ── */
-        b64e: function (args) {
-          var text = args.join(' ');
-          if (!text) return { err: true, text: 'b64e: usage: b64e <text>' };
-          try {
-            var bytes = new TextEncoder().encode(text);
-            var bin = '';
-            for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-            return btoa(bin);
-          } catch (e) { return { err: true, text: 'b64e: could not encode.' }; }
-        },
-        b64d: function (args) {
-          var text = args.join(' ').trim();
-          if (!text) return { err: true, text: 'b64d: usage: b64d <base64>' };
-          try {
-            var bin = atob(text);
-            var bytes = new Uint8Array(bin.length);
-            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
-          } catch (e) { return { err: true, text: 'b64d: not valid base64.' }; }
-        },
-        str2hex: function (args) {
-          var text = args.join(' ');
-          if (!text) return { err: true, text: 'str2hex: usage: str2hex <text>' };
-          var bytes = new TextEncoder().encode(text);
-          var out = [];
-          for (var i = 0; i < bytes.length; i++) out.push(('0' + bytes[i].toString(16)).slice(-2));
-          return out.join(' ');
-        },
-        hex2str: function (args) {
-          var text = args.join(' ').replace(/\s+/g, '');
-          if (!text) return { err: true, text: 'hex2str: usage: hex2str <hex>' };
-          if (text.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(text)) {
-            return { err: true, text: 'hex2str: input must be even-length hex.' };
-          }
-          var bytes = new Uint8Array(text.length / 2);
-          for (var i = 0; i < bytes.length; i++) bytes[i] = parseInt(text.substr(i * 2, 2), 16);
-          try {
-            return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
-          } catch (e) {
-            var s = '';
-            for (var j = 0; j < bytes.length; j++) s += String.fromCharCode(bytes[j]);
-            return s;
-          }
-        },
-        urlenc: function (args) { return encodeURIComponent(args.join(' ')); },
-        urldec: function (args) {
-          try { return decodeURIComponent(args.join(' ')); }
-          catch (e) { return { err: true, text: 'urldec: malformed input.' }; }
-        },
-        rev: function (args) {
-          return Array.from(args.join(' ')).reverse().join('');
-        },
-        upper: function (args) { return args.join(' ').toUpperCase(); },
-        lower: function (args) { return args.join(' ').toLowerCase(); },
+        /* ── cyberchef-lite: adapters over the shared TOOLKIT ── */
+        b64e:    function (args) { return runSync('b64e',    args.join(' ')); },
+        b64d:    function (args) { return runSync('b64d',    args.join(' ').trim()); },
+        str2hex: function (args) { return runSync('str2hex', args.join(' ')); },
+        hex2str: function (args) { return runSync('hex2str', args.join(' ')); },
+        urlenc:  function (args) { return runSync('urlenc',  args.join(' ')); },
+        urldec:  function (args) { return runSync('urldec',  args.join(' ')); },
+        rev:     function (args) { return runSync('rev',     args.join(' ')); },
+        upper:   function (args) { return runSync('upper',   args.join(' ')); },
+        lower:   function (args) { return runSync('lower',   args.join(' ')); },
         rot: function (args) {
-          var n = parseInt(args[0], 10);
-          if (isNaN(n)) return { err: true, text: 'rot: usage: rot <shift> <text>' };
-          var text = args.slice(1).join(' ');
-          if (!text) return { err: true, text: 'rot: usage: rot <shift> <text>' };
-          var s = ((n % 26) + 26) % 26;
-          return text.replace(/[a-zA-Z]/g, function (c) {
-            var base = c <= 'Z' ? 65 : 97;
-            return String.fromCharCode(((c.charCodeAt(0) - base + s) % 26) + base);
-          });
+          if (args.length < 2) return { err: true, text: 'rot: usage: rot <shift> <text>' };
+          return runSync('rot', args.slice(1).join(' '), args[0]);
         },
         xor: function (args) {
           if (args.length < 2) return { err: true, text: 'xor: usage: xor <hex-key> <hex-data>' };
-          var key = args[0].replace(/\s+/g, '');
-          var data = args.slice(1).join(' ').replace(/\s+/g, '');
-          if (!/^[0-9a-fA-F]+$/.test(key) || key.length % 2 !== 0)   return { err: true, text: 'xor: key must be even-length hex.' };
-          if (!/^[0-9a-fA-F]+$/.test(data) || data.length % 2 !== 0) return { err: true, text: 'xor: data must be even-length hex.' };
-          var kbytes = new Uint8Array(key.length / 2);
-          for (var i = 0; i < kbytes.length; i++) kbytes[i] = parseInt(key.substr(i * 2, 2), 16);
-          var dbytes = new Uint8Array(data.length / 2);
-          for (var j = 0; j < dbytes.length; j++) dbytes[j] = parseInt(data.substr(j * 2, 2), 16);
-          var out = [];
-          for (var k = 0; k < dbytes.length; k++) {
-            out.push(('0' + (dbytes[k] ^ kbytes[k % kbytes.length]).toString(16)).slice(-2));
-          }
-          return out.join(' ');
+          return runSync('xor', args.slice(1).join(' '), args[0]);
         },
-        sha1:   function (args) { return runHash('SHA-1',   'sha1',   args); },
-        sha256: function (args) { return runHash('SHA-256', 'sha256', args); },
-        sha384: function (args) { return runHash('SHA-384', 'sha384', args); },
-        sha512: function (args) { return runHash('SHA-512', 'sha512', args); },
+        sha1:   function (args) { return runAsync('sha1',   args); },
+        sha256: function (args) { return runAsync('sha256', args); },
+        sha384: function (args) { return runAsync('sha384', args); },
+        sha512: function (args) { return runAsync('sha512', args); },
         chef: function (args) {
           if (args.length < 2) {
             return { err: true, text: 'chef: recipe usage: chef <input> <op[:arg]> [<op[:arg]> ...]' };
@@ -1329,36 +1538,28 @@
             if (!m) return { err: true, text: 'chef: bad op token: ' + token };
             var name = m[1].toLowerCase();
             var arg  = m[2];
-            if (!owns.call(CHEF_OPS, name)) {
+            if (!owns.call(TOOLKIT.sync, name)) {
               return { err: true, text: 'chef: unknown or async op: ' + name + '. see `chef.ops`' };
             }
-            if (CHEF_OPS[name].needsArg && arg === undefined) {
+            var op = TOOLKIT.sync[name];
+            if (op.needsArg && arg === undefined) {
               return { err: true, text: 'chef: op `' + name + '` needs `:<arg>` (e.g. `' + name + ':13`)' };
             }
-            var res = CHEF_OPS[name].run(value, arg);
-            if (res && res.err) return { err: true, text: 'chef @ step ' + (i + 1) + ' (' + name + '): ' + res.text };
-            value = String(res);
+            try { value = String(op.run(value, arg)); }
+            catch (e) { return { err: true, text: 'chef @ step ' + (i + 1) + ' (' + name + '): ' + e.message }; }
           }
           return value;
         },
         'chef.ops': function () {
-          return [
-            'chef recipe ops (sync):',
-            '  b64e     base64 encode',
-            '  b64d     base64 decode',
-            '  str2hex  string → hex bytes',
-            '  hex2str  hex → string',
-            '  urlenc   percent-encode',
-            '  urldec   percent-decode',
-            '  rev      reverse',
-            '  upper    upper-case',
-            '  lower    lower-case',
-            '  rot:N    Caesar shift by N',
-            '  xor:HEX  XOR with hex key (input must be hex)',
-            '',
-            'example:  chef hello rot:13 str2hex',
-            '          → uryyb → 75 72 79 79 62',
-          ].join('\n');
+          var lines = ['chef recipe ops (sync):'];
+          Object.keys(TOOLKIT.sync).forEach(function (name) {
+            var op = TOOLKIT.sync[name];
+            lines.push('  ' + (name + (op.needsArg ? ':' + (op.placeholder || 'arg') : '')).padEnd(14) + ' ' + name);
+          });
+          lines.push('');
+          lines.push('example:  chef hello rot:13 str2hex');
+          lines.push('          → uryyb → 75 72 79 79 62');
+          return lines.join('\n');
         },
         sudo: function () {
           return { err: true, text: '[sudo] password for hjjeon: ***\nnice try. permission denied.' };
@@ -1366,38 +1567,21 @@
         exit: function () { return "can't exit a static site. use the tab bar."; },
       };
 
-      /* Sync ops available inside `chef` recipes (async hashes excluded). */
-      var CHEF_OPS = {
-        b64e:    { run: function (v)    { return COMMANDS.b64e([v]); } },
-        b64d:    { run: function (v)    { return COMMANDS.b64d([v]); } },
-        str2hex: { run: function (v)    { return COMMANDS.str2hex([v]); } },
-        hex2str: { run: function (v)    { return COMMANDS.hex2str([v]); } },
-        urlenc:  { run: function (v)    { return COMMANDS.urlenc([v]); } },
-        urldec:  { run: function (v)    { return COMMANDS.urldec([v]); } },
-        rev:     { run: function (v)    { return COMMANDS.rev([v]); } },
-        upper:   { run: function (v)    { return COMMANDS.upper([v]); } },
-        lower:   { run: function (v)    { return COMMANDS.lower([v]); } },
-        rot:     { needsArg: true, run: function (v, a) { return COMMANDS.rot([a, v]); } },
-        xor:     { needsArg: true, run: function (v, a) { return COMMANDS.xor([a, v]); } },
-      };
-
-      function runHash(algo, name, args) {
+      /* Adapters between shell-command semantics (array args → string / {err,text})
+         and the pure TOOLKIT (single value → string, throws on failure). */
+      function runSync(name, value, arg) {
+        if (!value && value !== '') return { err: true, text: name + ': usage: ' + name + ' <text>' };
+        try { return String(TOOLKIT.sync[name].run(value, arg)); }
+        catch (e) { return { err: true, text: name + ': ' + e.message }; }
+      }
+      function runAsync(name, args) {
         var text = args.join(' ');
         if (!text) { append(name + ': usage: ' + name + ' <text>', 'err'); scrollBottom(); return null; }
-        if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) {
-          append(name + ': crypto.subtle unavailable in this browser.', 'err');
-          scrollBottom();
-          return null;
-        }
-        var buf = new TextEncoder().encode(text);
-        window.crypto.subtle.digest(algo, buf).then(function (h) {
-          var arr = new Uint8Array(h);
-          var out = '';
-          for (var i = 0; i < arr.length; i++) out += ('0' + arr[i].toString(16)).slice(-2);
+        TOOLKIT.async[name].run(text).then(function (out) {
           append(out);
           scrollBottom();
-        }).catch(function () {
-          append(name + ': hash failed.', 'err');
+        }).catch(function (e) {
+          append(name + ': ' + (e && e.message || 'failed.'), 'err');
           scrollBottom();
         });
         return null;
@@ -1503,6 +1687,163 @@
       }
 
       append("welcome. type `help` for commands, or `ls`.", 'dim');
+    })();
+
+    /* ── Chef page (~/chef) — visual recipe over the same TOOLKIT ── */
+    (function () {
+      var input   = document.getElementById('chef-input');
+      var output  = document.getElementById('chef-output');
+      var recipe  = document.getElementById('chef-recipe');
+      var picker  = document.getElementById('chef-op-picker');
+      var clear   = document.getElementById('chef-clear');
+      var copy    = document.getElementById('chef-copy');
+      var status  = document.getElementById('chef-status');
+      if (!input || !output || !recipe || !picker || !clear || !copy || !status) return;
+
+      var steps = [];  // [{ op: 'rot', arg: '13' }, ...]
+      var owns  = Object.prototype.hasOwnProperty;
+
+      // Populate the op picker from TOOLKIT.groups
+      TOOLKIT.groups.forEach(function (group) {
+        var g = document.createElement('optgroup');
+        g.label = group.label;
+        group.ops.forEach(function (name) {
+          var op = TOOLKIT.sync[name] || TOOLKIT.async[name];
+          if (!op) return;
+          var o = document.createElement('option');
+          o.value = name;
+          o.textContent = name + (op.needsArg ? ' <' + (op.placeholder || 'arg') + '>' : '') + (TOOLKIT.async[name] ? ' (async)' : '');
+          g.appendChild(o);
+        });
+        picker.appendChild(g);
+      });
+
+      function opFor(name) {
+        if (owns.call(TOOLKIT.sync,  name)) return TOOLKIT.sync[name];
+        if (owns.call(TOOLKIT.async, name)) return TOOLKIT.async[name];
+        return null;
+      }
+
+      function render() {
+        while (recipe.firstChild) recipe.removeChild(recipe.firstChild);
+        if (!steps.length) {
+          var empty = document.createElement('span');
+          empty.className = 'chef-empty';
+          empty.textContent = 'no ops yet — pick one below.';
+          recipe.appendChild(empty);
+          return;
+        }
+        steps.forEach(function (step, idx) {
+          var op = opFor(step.op);
+          if (!op) return;
+          var chip = document.createElement('span');
+          chip.className = 'chef-step';
+
+          var name = document.createElement('span');
+          name.className = 'chef-step-name';
+          name.textContent = step.op;
+          chip.appendChild(name);
+
+          if (op.needsArg) {
+            var argIn = document.createElement('input');
+            argIn.type = 'text';
+            argIn.className = 'chef-step-arg';
+            argIn.value = step.arg || '';
+            argIn.placeholder = op.placeholder || 'arg';
+            argIn.setAttribute('aria-label', step.op + ' argument');
+            argIn.addEventListener('input', function () {
+              step.arg = argIn.value;
+              recompute();
+            });
+            chip.appendChild(argIn);
+          }
+
+          var rm = document.createElement('button');
+          rm.type = 'button';
+          rm.className = 'chef-step-remove';
+          rm.textContent = '×';
+          rm.setAttribute('aria-label', 'Remove ' + step.op);
+          rm.addEventListener('click', function () {
+            steps.splice(idx, 1);
+            render();
+            recompute();
+          });
+          chip.appendChild(rm);
+
+          recipe.appendChild(chip);
+        });
+      }
+
+      function setStatus(text, isErr) {
+        status.textContent = text || '';
+        status.classList.toggle('err', !!isErr);
+      }
+
+      function recompute() {
+        var chain = Promise.resolve(input.value);
+        steps.forEach(function (step, idx) {
+          chain = chain.then(function (value) {
+            var op = opFor(step.op);
+            if (!op) throw new Error('step ' + (idx + 1) + ': unknown op `' + step.op + '`');
+            if (op.needsArg && !String(step.arg || '').length) {
+              throw new Error('step ' + (idx + 1) + ' (' + step.op + '): missing arg');
+            }
+            return op.run(value, step.arg);
+          });
+        });
+        chain.then(function (out) {
+          output.value = String(out);
+          setStatus('');
+        }, function (err) {
+          output.value = '';
+          setStatus('⚠ ' + (err && err.message || 'failed'), true);
+        });
+      }
+
+      picker.addEventListener('change', function () {
+        if (!picker.value) return;
+        steps.push({ op: picker.value, arg: '' });
+        picker.value = '';
+        render();
+        recompute();
+      });
+
+      clear.addEventListener('click', function () {
+        steps = [];
+        render();
+        recompute();
+      });
+
+      copy.addEventListener('click', function () {
+        if (!output.value) { setStatus('(empty)'); return; }
+        var done = function () {
+          setStatus('copied.');
+          setTimeout(function () { setStatus(''); }, 1200);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(output.value).then(done, function () {
+            output.select(); done();
+          });
+        } else {
+          output.select();
+          try { document.execCommand('copy'); done(); } catch (e) { setStatus('copy failed', true); }
+        }
+      });
+
+      input.addEventListener('input', recompute);
+
+      // Auto-focus input when the chef section becomes active
+      window.addEventListener('section-activated', function (e) {
+        if (e && e.detail && e.detail.id === 'chef') {
+          setTimeout(function () { input.focus({ preventScroll: true }); }, 40);
+        }
+      });
+      if (location.hash === '#chef') {
+        setTimeout(function () { input.focus({ preventScroll: true }); }, 40);
+      }
+
+      render();
+      recompute();
     })();
   </script>
 </body>
