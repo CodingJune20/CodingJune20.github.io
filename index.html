@@ -86,6 +86,7 @@
   <style>
     :root {
       /* ── Light: terminal manual paper, cool herbal cast ─── */
+      color-scheme: light dark;   /* tell browsers to theme form controls (textarea, select, button) */
       --paper:  #EEF0E7;
       --ink:    #171E19;
       --dim:    #5B655F;   /* darkened for WCAG AA on --paper (was #6C7570 = 4.03:1) */
@@ -95,6 +96,8 @@
       --dot:    rgba(46, 107, 63, 0.10);
       --err:    #A0421F;   /* deepened from #B95430 for AA on --paper */
     }
+    :root[data-theme="light"] { color-scheme: light; }
+    :root[data-theme="dark"]  { color-scheme: dark; }
 
     @media (prefers-color-scheme: dark) {
       :root {
@@ -441,7 +444,7 @@
       display: block;
       width: 100%;
       resize: vertical;
-      background: transparent;
+      background: var(--paper);
       color: var(--ink);
       border: 1px dashed var(--line);
       border-radius: 4px;
@@ -452,6 +455,7 @@
       caret-color: var(--moss);
       outline: none;
     }
+    .chef-io::placeholder { color: var(--dim); opacity: 1; }
     /* Defeat Mobile Safari's <16px auto-zoom on input focus */
     @media (pointer: coarse) {
       .chef-io { font-size: 16px; }
@@ -526,7 +530,7 @@
       font-family: "IBM Plex Mono", ui-monospace, monospace;
       font-size: 0.82rem;
       color: var(--ink);
-      background: transparent;
+      background: var(--paper);
       border: 1px solid var(--line);
       border-radius: 4px;
       padding: 0.35rem 0.6rem;
