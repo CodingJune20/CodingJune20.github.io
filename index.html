@@ -10,21 +10,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#EEF0E7" id="theme-color-meta" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#EEF0E7" media="(prefers-color-scheme: light)" id="theme-color-meta" />
+  <meta name="theme-color" content="#0C1310" media="(prefers-color-scheme: dark)" id="theme-color-meta-dark" />
   <!-- ✏️ 브라우저 탭에 보이는 제목 -->
   <title>Hyoungjun Jeon</title>
   <!-- ✏️ 검색했을 때 보이는 한 줄 설명 -->
-  <meta name="description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
+  <meta name="description" content="Hyoungjun Jeon — security researcher at SecAI Lab, Sungkyunkwan University (SKKU). Notes and work-in-progress at the intersection of AI security, machine learning, and binary analysis." />
   <meta name="author" content="Hyoungjun Jeon" />
   <link rel="canonical" href="https://codingjune20.github.io/" />
 
   <!-- Open Graph / social preview -->
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Hyoungjun Jeon" />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Hyoungjun Jeon" />
-  <meta property="og:description" content="Hyoungjun Jeon — SecAI Lab, Sungkyunkwan University (SKKU)." />
+  <meta property="og:description" content="Security researcher at SecAI Lab, Sungkyunkwan University (SKKU). AI security · ML · binary analysis." />
   <meta property="og:url" content="https://codingjune20.github.io/" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="https://codingjune20.github.io/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Hyoungjun Jeon — SecAI Lab, SKKU" />
+  <meta property="profile:first_name" content="Hyoungjun" />
+  <meta property="profile:last_name" content="Jeon" />
+  <meta property="profile:username" content="CodingJune20" />
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Hyoungjun Jeon" />
+  <meta name="twitter:description" content="Security researcher at SecAI Lab, Sungkyunkwan University (SKKU). AI security · ML · binary analysis." />
+  <meta name="twitter:image" content="https://codingjune20.github.io/og.png" />
+  <meta name="twitter:image:alt" content="Hyoungjun Jeon — SecAI Lab, SKKU" />
+
+  <!-- Structured data: Person -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Hyoungjun Jeon",
+      "url": "https://codingjune20.github.io/",
+      "email": "mailto:wnssad0202@g.skku.edu",
+      "affiliation": {
+        "@type": "CollegeOrUniversity",
+        "name": "Sungkyunkwan University",
+        "department": "SecAI Lab",
+        "url": "https://secai.skku.edu"
+      },
+      "knowsAbout": ["AI security", "Machine learning", "Software and binary analysis"],
+      "sameAs": ["https://github.com/CodingJune20"]
+    }
+  </script>
+
   <!-- ctf: flag{page_source_scanned} -->
   <meta name="ctf-hint" content="you scanned the source. good." />
 
@@ -52,12 +88,12 @@
       /* ── Light: terminal manual paper, cool herbal cast ─── */
       --paper:  #EEF0E7;
       --ink:    #171E19;
-      --dim:    #6C7570;
+      --dim:    #5B655F;   /* darkened for WCAG AA on --paper (was #6C7570 = 4.03:1) */
       --moss:   #2E6B3F;
-      --sprout: #4A9B5F;
       --line:   #D5DBCC;
       --tint:   #E1E7D7;
       --dot:    rgba(46, 107, 63, 0.10);
+      --err:    #A0421F;   /* deepened from #B95430 for AA on --paper */
     }
 
     @media (prefers-color-scheme: dark) {
@@ -66,31 +102,21 @@
         --ink:    #E4E8DE;
         --dim:    #8A9490;
         --moss:   #82C793;
-        --sprout: #A2DDB1;
         --line:   #212A24;
         --tint:   #17221C;
         --dot:    rgba(130, 199, 147, 0.11);
+        --err:    #E58A65;
       }
-    }
-    :root[data-theme="light"] {
-      --paper:  #EEF0E7;
-      --ink:    #171E19;
-      --dim:    #6C7570;
-      --moss:   #2E6B3F;
-      --sprout: #4A9B5F;
-      --line:   #D5DBCC;
-      --tint:   #E1E7D7;
-      --dot:    rgba(46, 107, 63, 0.10);
     }
     :root[data-theme="dark"] {
       --paper:  #0C1310;
       --ink:    #E4E8DE;
       --dim:    #8A9490;
       --moss:   #82C793;
-      --sprout: #A2DDB1;
       --line:   #212A24;
       --tint:   #17221C;
       --dot:    rgba(130, 199, 147, 0.11);
+      --err:    #E58A65;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,7 +126,6 @@
       background-color: var(--paper);
       background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
       background-size: 22px 22px;
-      background-position: 0 0;
       color: var(--ink);
       font-family: "IBM Plex Sans", system-ui, sans-serif;
       font-size: 16.5px;
@@ -140,7 +165,8 @@
     .topbar-inner {
       max-width: 42rem;
       margin: 0 auto;
-      padding: 0.55rem 1.4rem;
+      /* respect iOS safe-area on notched devices / PWA */
+      padding: calc(0.55rem + env(safe-area-inset-top)) calc(1.4rem + env(safe-area-inset-right)) 0.55rem calc(1.4rem + env(safe-area-inset-left));
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -165,23 +191,32 @@
     }
     .nav a:hover { color: var(--moss); }
     .nav a.active { color: var(--ink); border-bottom-color: var(--moss); }
+    /* Middle-dot separator — content/'' trailing alt-text tells AT to skip it */
     .nav a + a::before {
-      content: "·";
+      content: "·" / "";
       color: var(--dim);
       opacity: 0.55;
       margin-right: 0.55rem;
-      padding-right: 0;
     }
     .nav a:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; border-radius: 2px; }
 
-    /* Anchor scroll offset so the topbar doesn't cover the heading */
-    section[id] { scroll-margin-top: 3.6rem; }
+    /* Larger tap targets on touch devices (WCAG 2.5.5 / HIG 44x44) */
+    @media (pointer: coarse) {
+      .nav      { gap: 0.35rem 0.65rem; }
+      .nav a    { padding: 0.55em 0.25em; }
+    }
+
+    /* Anchor scroll offset — larger when the 7-link nav wraps to two rows on narrow widths */
+    section[id] { scroll-margin-top: 5.5rem; }
+    @media (min-width: 480px) {
+      section[id] { scroll-margin-top: 3.6rem; }
+    }
 
     /* ── Theme toggle ───────────────────────── */
     .toggle {
       flex: 0 0 auto;
-      width: 34px;
-      height: 34px;
+      width: 40px;
+      height: 40px;
       border-radius: 6px;
       border: 1px solid var(--line);
       background: transparent;
@@ -192,9 +227,13 @@
       cursor: pointer;
       transition: background 0.15s ease, border-color 0.15s ease;
     }
+    /* Meet WCAG 2.5.5 / HIG 44x44 on touch */
+    @media (pointer: coarse) {
+      .toggle { width: 44px; height: 44px; }
+    }
     .toggle:hover { background: var(--tint); border-color: var(--moss); }
     .toggle:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
-    .toggle svg { width: 15px; height: 15px; stroke: currentColor; }
+    .toggle svg { width: 17px; height: 17px; stroke: currentColor; }
     .toggle .sun  { display: none; }
     .toggle .moon { display: inline; }
     @media (prefers-color-scheme: dark) {
@@ -280,6 +319,7 @@
       padding-bottom: 1px;
     }
     .meta a:hover { background: var(--tint); }
+    .meta a:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; border-radius: 2px; }
 
     /* ── Sections ───────────────────────────── */
     section { padding: 2rem 0; }
@@ -319,7 +359,9 @@
       border-radius: 6px;
       background: color-mix(in srgb, var(--paper) 96%, transparent);
       padding: 0.85rem 1rem;
-      height: 22rem;
+      /* dvh keeps the box within a landscape phone viewport once the soft keyboard opens */
+      height: min(22rem, 55dvh);
+      min-height: 14rem;
       overflow-y: auto;
       overscroll-behavior: contain;
       font-family: "IBM Plex Mono", ui-monospace, monospace;
@@ -328,12 +370,13 @@
       color: var(--ink);
       cursor: text;
     }
-    .term-out > div { white-space: pre-wrap; word-break: break-word; }
-    .term-out .err { color: #B95430; }
-    :root[data-theme="dark"] .term-out .err { color: #E58A65; }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .term-out .err { color: #E58A65; }
+    /* subtle focus ring on the whole terminal box when the input has focus */
+    .term:has(.term-input:focus-visible) {
+      box-shadow: 0 0 0 2px var(--moss);
+      border-color: var(--moss);
     }
+    .term-out > div { white-space: pre-wrap; word-break: break-word; }
+    .term-out .err { color: var(--err); }
     .term-out .dim { color: var(--dim); }
     .term-prompt { color: var(--moss); user-select: none; white-space: pre; }
     .term-line { display: flex; align-items: baseline; margin-top: 0.05rem; }
@@ -348,6 +391,16 @@
       caret-color: var(--moss);
       padding: 0;
       min-width: 0;
+    }
+    /* Fallback focus ring for browsers without :has() support */
+    .term-input:focus-visible {
+      outline: 2px solid var(--moss);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+    /* Defeat Mobile Safari's <16px auto-zoom on input focus */
+    @media (pointer: coarse) {
+      .term-input { font-size: 16px; }
     }
     .term::-webkit-scrollbar { width: 6px; }
     .term::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
@@ -389,12 +442,16 @@
     }
     .chip {
       display: inline-flex;
-      align-items: baseline;
-      padding: 0.35em 0.15em;
+      align-items: center;
+      padding: 0.5em 0.25em;
       color: var(--ink);
       text-decoration: none;
       border-bottom: 1px solid transparent;
       transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    /* Ensure a 44x44 tap target on touch (WCAG 2.5.5) */
+    @media (pointer: coarse) {
+      .chip { min-height: 44px; padding: 0.6em 0.4em; }
     }
     .chip::before { content: "[ "; color: var(--dim); }
     .chip::after  { content: " ]"; color: var(--dim); }
@@ -416,6 +473,7 @@
     /* ── Reduced motion ─────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       h1 .cursor { animation: none; opacity: 1; }
+      main > section.active { animation: none; }
       html { scroll-behavior: auto; }
       .chip, .toggle, body { transition: none; }
     }
@@ -472,7 +530,7 @@
 
     <main>
       <section id="about">
-        <p class="label">~/about</p>
+        <h2 class="label">~/about</h2>
         <!-- ✏️ 자기소개 문단 — 자유롭게 수정하세요 -->
         <p>
           I'm a member of SecAI Lab, a security research group in the
@@ -484,7 +542,7 @@
       </section>
 
       <section id="research">
-        <p class="label">~/research</p>
+        <h2 class="label">~/research</h2>
         <!-- ✏️ 아래는 예시입니다 — 본인 연구 분야로 바꿔주세요 -->
         <ul class="tree">
           <li>AI security</li>
@@ -494,7 +552,7 @@
       </section>
 
       <section id="papers">
-        <p class="label">~/papers</p>
+        <h2 class="label">~/papers</h2>
         <!-- ✏️ 논문이 생기면 아래 .empty 자리를 ul.tree 로 바꿔서 목록으로 넣으세요.
              예:
              <ul class="tree">
@@ -505,13 +563,13 @@
       </section>
 
       <section id="writing">
-        <p class="label">~/writing</p>
+        <h2 class="label">~/writing</h2>
         <!-- ✏️ 블로그 글이나 노트가 생기면 아래 자리를 목록으로 바꾸세요. -->
         <p class="empty">// pending — first entry on the way.</p>
       </section>
 
       <section id="resume">
-        <p class="label">~/resume</p>
+        <h2 class="label">~/resume</h2>
         <!-- ✏️ 이 링크가 작동하려면 저장소 루트에 resume.pdf 파일을 올리세요. -->
         <div class="chips">
           <a class="chip" href="./resume.pdf" rel="noopener">resume.pdf</a>
@@ -519,7 +577,7 @@
       </section>
 
       <section id="elsewhere">
-        <p class="label">~/elsewhere</p>
+        <h2 class="label">~/elsewhere</h2>
         <div class="chips">
           <!-- ✏️ "your-id"를 본인 깃허브 아이디로 바꿔주세요 -->
           <a class="chip" href="https://github.com/CodingJune20" rel="me noopener">github</a>
@@ -530,9 +588,9 @@
       </section>
 
       <section id="play">
-        <p class="label">~/play</p>
+        <h2 class="label">~/play</h2>
         <div class="term" id="term">
-          <div class="term-out" id="term-out"></div>
+          <div class="term-out" id="term-out" role="log" aria-live="polite" aria-atomic="false" aria-relevant="additions"></div>
           <div class="term-line">
             <span class="term-prompt">hjjeon@site:~$&nbsp;</span>
             <input
@@ -548,7 +606,7 @@
             />
           </div>
         </div>
-        <p class="term-hint">try `help` · ↑/↓ history · Tab autocomplete · Ctrl+L clear</p>
+        <p class="term-hint">try `help` · ↑/↓ history · Tab / trailing space autocomplete · Ctrl+L clear</p>
       </section>
     </main>
 
@@ -563,7 +621,8 @@
     (function () {
       var root = document.documentElement;
       var btn  = document.getElementById('theme-toggle');
-      var meta = document.getElementById('theme-color-meta');
+      var metaLight = document.getElementById('theme-color-meta');
+      var metaDark  = document.getElementById('theme-color-meta-dark');
       var mql  = window.matchMedia('(prefers-color-scheme: dark)');
 
       function effectiveTheme() {
@@ -574,7 +633,17 @@
 
       function syncMeta() {
         var t = effectiveTheme();
-        if (meta) meta.setAttribute('content', t === 'dark' ? '#0C1310' : '#EEF0E7');
+        var manual = root.hasAttribute('data-theme');
+        var chosen = t === 'dark' ? '#0C1310' : '#EEF0E7';
+        if (manual) {
+          // Manual override: drop the media attributes so both tags become unconditional.
+          if (metaLight) { metaLight.removeAttribute('media'); metaLight.setAttribute('content', chosen); }
+          if (metaDark)  { metaDark.removeAttribute('media');  metaDark.setAttribute('content', chosen); }
+        } else {
+          // Follow system: restore media-scoped pair.
+          if (metaLight) { metaLight.setAttribute('media', '(prefers-color-scheme: light)'); metaLight.setAttribute('content', '#EEF0E7'); }
+          if (metaDark)  { metaDark.setAttribute('media',  '(prefers-color-scheme: dark)');  metaDark.setAttribute('content', '#0C1310'); }
+        }
         var next = t === 'dark' ? 'light' : 'dark';
         btn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
         btn.setAttribute('title', 'Switch to ' + next + ' mode');
@@ -587,7 +656,12 @@
         syncMeta();
         return true;
       }
-      window.__siteApplyTheme = applyTheme;
+
+      // Private cross-IIFE channel — no global mutator surface for third-party scripts to hijack.
+      window.addEventListener('site:apply-theme', function (e) {
+        var mode = e && e.detail && e.detail.mode;
+        applyTheme(mode);
+      });
 
       btn.addEventListener('click', function () {
         applyTheme(effectiveTheme() === 'dark' ? 'light' : 'dark');
@@ -661,7 +735,7 @@
       var NAME   = 'Hyoungjun Jeon';
       var PROMPT = 'hjjeon@site:~$ ';
 
-      var history = [];
+      var cmdHistory = [];
       var histIdx = -1;
 
       var FILES = {
@@ -779,8 +853,12 @@
       var progress = new Set();
       try {
         JSON.parse(localStorage.getItem('play.progress') || '[]')
+          .filter(function (n) { return Number.isInteger(n) && GAME.order.indexOf(n) !== -1; })
           .forEach(function (n) { progress.add(n); });
       } catch (e) {}
+
+      // Bumped by `reset` so an in-flight `submit` .then can no-op instead of undoing it.
+      var resetEpoch = 0;
 
       function saveProgress() {
         try {
@@ -858,8 +936,8 @@
         var W = 60;
         function line(inner) {
           var pad = W - 2 - inner.length;
-          if (pad < 0) inner = inner.slice(0, W - 2), pad = 0;
-          return '║ ' + inner + ' '.repeat(pad - 1) + '║';
+          if (pad < 0) { inner = inner.slice(0, W - 3); pad = 1; }
+          return '║ ' + inner + ' '.repeat(Math.max(0, pad - 1)) + '║';
         }
         var edgeT = '╔' + '═'.repeat(W - 2) + '╗';
         var edgeB = '╚' + '═'.repeat(W - 2) + '╝';
@@ -987,8 +1065,8 @@
           return out.join('\n');
         },
         history: function () {
-          if (!history.length) return '(empty)';
-          return history.map(function (h, i) { return (' ' + (i + 1)).slice(-3) + '  ' + h; }).join('\n');
+          if (!cmdHistory.length) return '(empty)';
+          return cmdHistory.map(function (h, i) { return (' ' + (i + 1)).slice(-3) + '  ' + h; }).join('\n');
         },
         clear: function () { clearOut(); return null; },
         'find-flag': function () {
@@ -1018,7 +1096,9 @@
         submit: function (args) {
           var flag = args.join(' ').trim();
           if (!flag) return { err: true, text: 'submit: missing flag' };
+          var epoch = resetEpoch;   // snapshot — if `reset` runs while the digest is in flight, we no-op
           sha256Hex(flag).then(function (h) {
+            if (epoch !== resetEpoch) return;    // reset was called between submit and digest — abandon
             var matched = null;
             for (var i = 0; i < GAME.order.length; i++) {
               var n = GAME.order[i];
@@ -1074,6 +1154,7 @@
           return lines.join('\n');
         },
         reset: function () {
+          resetEpoch++;   // invalidate in-flight submit .then callbacks
           progress.clear();
           saveProgress();
           return 'progress reset. type `challenge` to start over.';
@@ -1081,18 +1162,22 @@
         cert: function (args) {
           var name = args.join(' ').trim();
           if (!name) return { err: true, text: 'cert: give a name. usage: cert <your name>' };
-          if (name.length > 40) return { err: true, text: 'cert: name too long (max 40).' };
+          if (name.length > 34) return { err: true, text: 'cert: name too long (max 34).' };
           if (!/^[\x20-\x7e]+$/.test(name)) return { err: true, text: 'cert: printable ASCII only.' };
-          if (progress.size !== GAME.order.length) {
-            var left = GAME.order.length - progress.size;
-            return { err: true, text: 'cert: clear all ' + GAME.order.length + ' levels first (' + left + ' to go). see `progress`.' };
+          // Defense-in-depth: check each level is in progress, not just count.
+          var allCleared = GAME.order.every(function (n) { return progress.has(n); });
+          if (!allCleared) {
+            var missing = GAME.order.filter(function (n) { return !progress.has(n); });
+            return { err: true, text: 'cert: clear all ' + GAME.order.length + ' levels first (' + missing.length + ' to go). see `progress`.' };
           }
           var date = new Date().toISOString().slice(0, 10);
           var digest = GAME.order.map(function (n) { return GAME.levels[n].hash; }).join('|');
           sha256Hex(name + '|' + date + '|' + digest).then(function (sig) {
-            var svg = buildCertSvg(name, date, sig);
-            append(buildCertAscii(name, date, sig.slice(0, 12)));
+            // Render + download in a single try — a bug in either step surfaces truthfully,
+            // instead of being blamed on crypto.subtle by the outer rejection handler.
             try {
+              var svg = buildCertSvg(name, date, sig);
+              append(buildCertAscii(name, date, sig.slice(0, 12)));
               var blob = new Blob([svg], { type: 'image/svg+xml' });
               var url  = URL.createObjectURL(blob);
               var a    = document.createElement('a');
@@ -1104,10 +1189,10 @@
               setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
               append('saved: certificate.svg — check your downloads.', 'dim');
             } catch (e) {
-              append('cert: download failed. sig: ' + sig.slice(0, 12), 'err');
+              append('cert: could not render or download the certificate. sig: ' + sig.slice(0, 12), 'err');
             }
             scrollBottom();
-          }).catch(function () {
+          }, function () {
             append('cert: crypto.subtle unavailable in this browser.', 'err');
             scrollBottom();
           });
@@ -1118,7 +1203,8 @@
           if (m !== 'light' && m !== 'dark') {
             return { err: true, text: 'theme: use `theme light` or `theme dark`' };
           }
-          if (window.__siteApplyTheme) window.__siteApplyTheme(m);
+          // Talk to the theme module via a private event — no global mutator surface.
+          window.dispatchEvent(new CustomEvent('site:apply-theme', { detail: { mode: m } }));
           return 'theme set to ' + m + '.';
         },
         open: function (args) {
@@ -1128,7 +1214,10 @@
             return { err: true, text: 'open: unknown section: ' + (args[0] || '(empty)') };
           }
           if (('#' + t) !== location.hash) {
-            window.location.hash = '#' + t;
+            window.location.hash = '#' + t;   // hashchange handler will call activate()
+          } else {
+            // Idempotent: hashchange won't fire when the hash already matches, so re-dispatch.
+            window.dispatchEvent(new CustomEvent('section-activated', { detail: { id: t } }));
           }
           return 'opening ~/' + t + '...';
         },
@@ -1142,9 +1231,9 @@
         appendPrompt(input);
         var trimmed = input.trim();
         if (!trimmed) { scrollBottom(); return; }
-        history.push(trimmed);
-        if (history.length > 100) history.shift();
-        histIdx = history.length;
+        cmdHistory.push(trimmed);
+        if (cmdHistory.length > 100) cmdHistory.shift();
+        histIdx = cmdHistory.length;
 
         var parts = trimmed.split(/\s+/);
         var cmd = parts[0];
@@ -1177,16 +1266,16 @@
           run(v);
         } else if (e.key === 'ArrowUp') {
           e.preventDefault();
-          if (!history.length) return;
+          if (!cmdHistory.length) return;
           if (histIdx > 0) histIdx--;
-          termIn.value = history[histIdx] || '';
+          termIn.value = cmdHistory[histIdx] || '';
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
-          if (histIdx < history.length - 1) {
+          if (histIdx < cmdHistory.length - 1) {
             histIdx++;
-            termIn.value = history[histIdx];
+            termIn.value = cmdHistory[histIdx];
           } else {
-            histIdx = history.length;
+            histIdx = cmdHistory.length;
             termIn.value = '';
           }
         } else if (e.key === 'l' && e.ctrlKey) {
@@ -1195,6 +1284,8 @@
         } else if (e.key === 'Tab') {
           e.preventDefault();
           var v = termIn.value;
+          // Guard: empty input would list every command; input past the command word can't complete here
+          if (!v || /\s/.test(v)) return;
           var matches = Object.keys(COMMANDS).filter(function (k) { return k.indexOf(v) === 0; });
           if (matches.length === 1) termIn.value = matches[0];
           else if (matches.length > 1) {
@@ -1205,10 +1296,21 @@
         }
       });
 
+      // Mobile fallback for Tab: typing a partial + <space> completes it if the prefix is unique
+      termIn.addEventListener('input', function () {
+        var v = termIn.value;
+        var m = v.match(/^(\S+) $/);
+        if (!m) return;
+        var prefix = m[1];
+        if (owns.call(COMMANDS, prefix)) return;   // already complete
+        var candidates = Object.keys(COMMANDS).filter(function (k) { return k.indexOf(prefix) === 0; });
+        if (candidates.length === 1) termIn.value = candidates[0] + ' ';
+      });
+
       // Clicking anywhere inside the terminal focuses the input
       term.addEventListener('click', function (e) {
         if (window.getSelection && String(window.getSelection())) return; // don't steal a text selection
-        termIn.focus();
+        termIn.focus({ preventScroll: true });
       });
 
       // Auto-focus when the play tab becomes active
@@ -1217,6 +1319,12 @@
           setTimeout(function () { termIn.focus({ preventScroll: true }); }, 40);
         }
       });
+
+      // If the page loaded directly on #play, the router's initial activate() ran
+      // before this listener was registered — catch that case explicitly.
+      if (location.hash === '#play') {
+        setTimeout(function () { termIn.focus({ preventScroll: true }); }, 40);
+      }
 
       append("welcome. type `help` for commands, or `ls`.", 'dim');
     })();
