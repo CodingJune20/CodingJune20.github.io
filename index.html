@@ -95,6 +95,11 @@
       --tint:   #E1E7D7;
       --dot:    rgba(46, 107, 63, 0.10);
       --err:    #A0421F;   /* deepened from #B95430 for AA on --paper */
+      /* wordle tile/keyboard states */
+      --wl-correct-bg: #2E6B3F;
+      --wl-present-bg: #A96C15;
+      --wl-absent-bg:  #78817A;
+      --wl-on:         #F5F7F2;
     }
     :root[data-theme="light"] { color-scheme: light; }
     :root[data-theme="dark"]  { color-scheme: dark; }
@@ -109,6 +114,10 @@
         --tint:   #17221C;
         --dot:    rgba(130, 199, 147, 0.11);
         --err:    #E58A65;
+        --wl-correct-bg: #3F8756;
+        --wl-present-bg: #BC8A32;
+        --wl-absent-bg:  #3A423C;
+        --wl-on:         #EEF2EA;
       }
     }
     :root[data-theme="dark"] {
@@ -120,6 +129,10 @@
       --tint:   #17221C;
       --dot:    rgba(130, 199, 147, 0.11);
       --err:    #E58A65;
+      --wl-correct-bg: #3F8756;
+      --wl-present-bg: #BC8A32;
+      --wl-absent-bg:  #3A423C;
+      --wl-on:         #EEF2EA;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -615,12 +628,92 @@
     }
     footer .eof { color: var(--moss); }
 
+    /* ── Wordle (~/wordle): Korean jamo, 6 tiles, 두벌식/QWERTY keyboard ── */
+    .wl-hint {
+      color: var(--dim);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    .wl-board {
+      display: grid;
+      gap: 0.4rem;
+      max-width: 23rem;
+      margin: 0 auto 1rem;
+    }
+    .wl-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem; }
+    .wl-tile {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--line);
+      border-radius: 5px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: clamp(1.1rem, 6.5vw, 1.7rem);
+      font-weight: 500;
+      color: var(--ink);
+      user-select: none;
+    }
+    .wl-tile.filled { border-color: var(--dim); }
+    .wl-tile.pop { animation: wl-pop 0.1s ease; }
+    @keyframes wl-pop { 50% { transform: scale(1.09); } }
+    .wl-row.shake { animation: wl-shake 0.4s ease; }
+    @keyframes wl-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+    .wl-tile.correct { background: var(--wl-correct-bg); border-color: var(--wl-correct-bg); color: var(--wl-on); }
+    .wl-tile.present { background: var(--wl-present-bg); border-color: var(--wl-present-bg); color: var(--wl-on); }
+    .wl-tile.absent  { background: var(--wl-absent-bg);  border-color: var(--wl-absent-bg);  color: var(--wl-on); }
+
+    .wl-msg {
+      text-align: center;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.9rem;
+      color: var(--ink);
+      min-height: 1.4em;
+      margin-bottom: 0.8rem;
+    }
+    .wl-msg.win  { color: var(--moss); font-weight: 600; }
+    .wl-msg.lose { color: var(--err); }
+
+    .wl-kb { display: flex; flex-direction: column; gap: 0.4rem; max-width: 30rem; margin: 0 auto; }
+    .wl-kb-row { display: flex; justify-content: center; gap: 0.3rem; }
+    .wl-key {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 2.6rem;
+      min-height: 3rem;
+      padding: 0.2rem;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--tint);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s ease, border-color 0.1s ease;
+    }
+    .wl-key:hover { border-color: var(--moss); }
+    .wl-key:focus-visible { outline: 2px solid var(--moss); outline-offset: 2px; }
+    .wl-key.wide  { flex: 1.5 1 0; max-width: 3.6rem; font-size: 0.95rem; }
+    .wl-key.enter { flex: 0 0 auto; min-width: 8rem; max-width: 12rem; font-size: 0.85rem; }
+    .wl-key.shifted { background: var(--moss); color: var(--wl-on); border-color: var(--moss); }
+    .wl-key.correct { background: var(--wl-correct-bg); color: var(--wl-on); border-color: var(--wl-correct-bg); }
+    .wl-key.present { background: var(--wl-present-bg); color: var(--wl-on); border-color: var(--wl-present-bg); }
+    .wl-key.absent  { background: var(--wl-absent-bg);  color: var(--wl-on); border-color: var(--wl-absent-bg); }
+
+    .wl-actions { display: flex; justify-content: center; gap: 0.6rem; margin-top: 1.1rem; }
+
     /* ── Reduced motion ─────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       h1 .cursor { animation: none; opacity: 1; }
       main > section.active { animation: none; }
       html { scroll-behavior: auto; }
       .chip, .toggle, body { transition: none; }
+      .wl-tile.pop { animation: none; }
+      .wl-row.shake { animation: none; }
     }
   </style>
 </head>
@@ -638,6 +731,7 @@
         <a href="#elsewhere">elsewhere</a>
         <a href="#chef">chef</a>
         <a href="#play">play</a>
+        <a href="#wordle">wordle</a>
       </nav>
       <button
         class="toggle"
@@ -784,6 +878,18 @@
           </div>
         </div>
         <p class="term-hint">try `help` · ↑/↓ history · Tab / trailing space autocomplete · Ctrl+L clear</p>
+      </section>
+
+      <section id="wordle">
+        <h2 class="label">~/wordle</h2>
+        <p class="wl-hint">한글 자모 워들 · 6칸 · 두벌식 자판. 정답은 국립국어원 학습용 명사. ㅐ=ㅏ+ㅣ, ㄲ=ㄱ+ㄱ 처럼 낱자로 입력 · 예: 볶음 → ㅂㅗㄱㄱㅇㅡㅁ</p>
+        <div class="wl-msg" id="wl-msg" role="status" aria-live="polite"></div>
+        <div class="wl-board" id="wl-board" role="grid" aria-label="워들 보드 (6칸 × 6줄)"></div>
+        <div class="wl-kb" id="wl-kb" role="group" aria-label="자모 키보드 (두벌식 배열)"></div>
+        <div class="wl-actions">
+          <button type="button" class="chef-btn" id="wl-new">새 게임</button>
+          <button type="button" class="chef-btn" id="wl-reveal">포기</button>
+        </div>
       </section>
     </main>
 
@@ -955,7 +1061,7 @@
     (function () {
       var topbar = document.getElementById('topbar');
       var links  = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
-      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere', 'chef', 'play'];
+      var order  = ['about', 'research', 'papers', 'writing', 'resume', 'elsewhere', 'chef', 'play', 'wordle'];
       var byHash = {};
       var sections = {};
       links.forEach(function (a) { byHash[a.getAttribute('href').slice(1)] = a; });
@@ -1495,7 +1601,7 @@
           return 'theme set to ' + m + '.';
         },
         open: function (args) {
-          var known = { about:1, research:1, papers:1, writing:1, resume:1, elsewhere:1, chef:1, play:1 };
+          var known = { about:1, research:1, papers:1, writing:1, resume:1, elsewhere:1, chef:1, play:1, wordle:1 };
           var t = (args[0] || '').replace(/^~\//, '').replace(/^#/, '').toLowerCase();
           if (!owns.call(known, t)) {
             return { err: true, text: 'open: unknown section: ' + (args[0] || '(empty)') };
@@ -1848,6 +1954,277 @@
 
       render();
       recompute();
+    })();
+
+    /* ── Korean jamo Wordle (~/wordle) — 6 atomic-jamo tiles, 두벌식 keyboard ── */
+    (function () {
+      var boardEl   = document.getElementById('wl-board');
+      var kbEl      = document.getElementById('wl-kb');
+      var msgEl     = document.getElementById('wl-msg');
+      var newBtn    = document.getElementById('wl-new');
+      var revealBtn = document.getElementById('wl-reveal');
+      var sectionEl = document.getElementById('wordle');
+      if (!boardEl || !kbEl || !msgEl || !sectionEl) return;
+
+      var ROWS = 6, COLS = 6;
+      var owns = Object.prototype.hasOwnProperty;
+
+      // 국립국어원 「한국어 학습용 어휘 목록」의 '명사' 중 정확히 6자모(쌍자음·복합모음·겹받침 낱자 분해) 995개.
+      // 소스에 한글 평문으로 안 보이도록 base64로 담음 — 클라이언트 게임 특성상 DevTools로는 볼 수 있음.
+      function b64utf8(s) { var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return new TextDecoder('utf-8').decode(a); }
+      var WORDS = b64utf8('66y47KCcIOusuO2ZlCDsnbjqsIQg7Ja066i464uIIOyEuOqzhCDsmrTrj5kg7JWE67KE7KeAIOyWvOq1tCDrsKnrspUg6re465WMIOqzvOyglSDsnbTslbzquLAg6rK97KCcIOyYiOyIoCDqsrDqs7wg64K07JqpIOuPmeyViCDqta3rr7wg64Ko7Y64IOyEuOyDgSDrjIDtlZkg7J6R7ZKIIOyDge2DnCDrrLjtlZkg7LWc6re8IO2YhOyLpCDrs4DtmZQg7KSR7IusIOq0keqzoCDsoJXsi6Ag7ZiE7IOBIOyghOyytCDrr7zsobEg7JiB7ZmUIOqzvO2VmSDqsrDqta0g7J2Y7IudIOyghO2ZlCDtlZzrsogg7IKw7JeFIOydjOyLnSDripDrgowg7ISx6rKpIOuwnOyghCDtmJXtg5wg7J6R7JeFIOyXre2VoCDqta3rgrQg6riw6rSAIOyeheyepSDrsKnsi50g7JiB7ZalIOuLqOqzhCDrsKntlqUg64yA7ZqMIOuLqOyytCDriqXroKUg7KG07J6sIO2VmeuFhCDsi6DrrLgg7KCc7ZKIIOyInOqwhCDtmozsnZgg67Cp7IahIOyXsOq3uSDsnbTrlYwg7KeR64uoIO2YhOuMgCDrrLzqsbQg6rCc7J24IOqyve2XmCDsnYzslYUg64aN66+8IOqysO2YvCDtmozsnqUg6rO16rCEIOqyveywsCDthrXsnbwg6rG06rCVIOqxtOusvCDsmbjqta0g64yA7IugIOyerOyCsCDqsJDrj4Ug64u067CwIOqzteyepSDtmZjsnpAg7J2867CYIOuMgO2ZlCDsmKztlbQg7J2466y8IOyghOq1rSDrho3sl4Ug7J2Y6rKsIOygnOydvCDrqqnsoIEg64Ko7ISxIOyGjOu5hOyekCDtmITsnqUg6rG07ISkIOuPmeuEpCDrjIDspJEg64iI66y8IOqwgeyihSDtmITsnqwg7Yq57KeVIO2YleyLnSDqsJDsoJUg7JWE7YyM7Yq4IOq0gOumrCDspJHslZkg6rKM7J6EIOq1reygnCDsoITthrUg7IK86rWtIOyGkOuLmCDthrXsi6Ag7JuD7J2MIOusvOyniCDsi6Tsspwg7ZWc7Y64IOqzteuPmSDrsKnslYgg67aE7ISdIOyDge2SiCDshKTrqoUg7Yuw67iM7J20IOyWtOq5qCDsl6ztlokg7KO97J2MIOyYpOyblCDsmIjsoJUg7ZWc6rOEIOyCrOyblCDqsIjrk7Eg7KCE66y4IOyLoOqyvSDslrjroaAg7KeA7JuQIOqyveyYgSDshLHsnqUg7J6R64WEIOyDiOuyvSDsnoTquIgg7KeB7J6lIOqzteyXsCDqtazsm5Qg7Jyg7JuUIOyekeyaqSDqs7Xsl4Ug7Lac7IugIOqysOyglSDqsr3tlqUg67CY66m0IOydtOuvuOyngCDtirnshLEg7ISg67CwIOyXheyytCDqta3tmowg6rGx7KCVIOunjOyVvSDtlonsgqwg7KeI66y4IO2KueuzhCDtjJDri6gg7IOB64yAIOyepeq1sCDslb3sho0g7Iug7LK0IOynkeyViCDrsLDqsr0g67CY64yAIOuyley5mSDrspTso4Qg65Oc652866eIIOqwkOqwgSDqs7zsoJwg7KKF7ZWpIO2VnOq4gCDrgrTsnbwg7YyQ66ekIO2YleyEsSDsnqXrqbQg64KY66i47KeAIOuCoOyUqCDrj5nrrLwg6rCc67CpIOuwmOydkSDshLjrjIAg7ZiV64uYIOuLueyepSDsg4jrgbwg7ISc67mE7IqkIOqzteqwnCDsiqTsiqTroZwg66ek7LK0IOyYgeyXrSDssrTtl5gg67aI67KVIOuwnOuLrCDsnpjrqrsg7Y+J7ZmUIOyLuOybgCDtlbTsmbgg7Iud64u5IOyytOycoSDtj4nqt6Ag7ZuI66CoIOuFvOusuCDsoJXri7kg7Y+t66ClIOusvOuhoCDsi53rrLwg6raM66asIOuMgOuLtSDsnpDsm5Ag66y87LK0IOy1nOuMgCDqsqztlbQg7JWI7KCVIOyjvO2DnSDriIjquLgg6rO87J28IOuGjey0jCDsoITrp50g7Iuc7JuUIOqysOuhoCDsoJzrqqkg7YyQ6rKwIO2drOunnSDqtbDrjIAg7Iuc66as7KaIIOyehOyLoCDqsJzshKAg652865SU7JikIOyLoO2ZlCDsp4Hsl4Ug67Cp7ZWZIOuylOychCDssqDtlZkg64yA7ZiVIOy2qeqyqSDtlZzssLgg7IiZ7KCcIOyYiOyCsCDquLDsgagg6rG47J2MIOuLqOychCDsg4Hsg4Eg7Lmo64yAIOyeheyIoCDspJHqsIQg7KeA64+E7J6QIOyKpO2PrOy4oCDqs6DqsJ0g7Iud7ZKIIOyhsOuvuOujjCDshKDrrLwg7JyE7ZeYIOuyleuloCDtmZTrqbQg66eM7J28IO2DnOyWkSDqs7XquIkg6reg7ZiVIOydtOyblCDsoJHqt7wg6rCc7ISxIOy0neyepSDrsKnrrLgg67aI66eMIOyLpOygnCDrj5nsnpEg7KSR7IS4IO2DneyLnCDthrXtlakg6rOE7IKwIOyWkeyLnSDsmIjsoIQg66qo6424IOyDgeyLnSDsmrTrqoUg7J6s7KCVIOuvvOqwhCDruYTrlJTsmKQg7Jew7Iq1IOyLneufiSDsi6Ttl5gg6rOg7IOdIOygleyDgSDssLjsg4gg64K064WEIOuIiOyVniDtlbTqsrAg66qp7IioIOydmOuztSDtmZTsoJwg6rO16rKpIOu2iOyViCDsnZjrrLgg7JWV66ClIOyYiOq4iCDsnoXtlZkg7Lac7IKwIOyerO2MkCDssL3rrLgg7ZqM67O1IOuMgOydkSDsi6zsnqUg7KeE7IukIO2YkeugpSDqs4TsuLUg64u064u5IOunjO2ZlCDsnbjsg4Eg64Kg6rCcIOuIiOu5myDrrLzsho0g7IaM64KY66y0IO2YleygnCDslYjsoIQg7J287KKFIO2Yle2OuCDrs7jsp4gg7Iug67aEIOyViOuwqSDrs7jrnpgg7IS46riIIOyLpOyglSDsmIHslpEg7Jyh7LK0IOyggeq3uSDrj4Xrpr0g7JyE67CYIOyLoOuwnCDthrXsoJwg6rOE64uoIOygnOyekSDsoJztlZwg7ZWc7IioIOyEoOyepSDshKTtg5Ug7KeR7KSRIO2BsOydvCDsoJDsi6wg7LKt64WEIOyLoOyaqSDsl7Drnb0g7Jio66q4IOymneyDgSDqsJXsoJwg64Ka7IucIOyaqeuPiCDthrXspp0g7ZiE6riIIO2ZlO2VmSDrqoXroLkg67CY7J6lIOq3ueyepSDrjIDrrLgg7Iac7JSoIOyLpOuCtCDso7zrqLjri4gg6rOE7JW9IOqzvOyepSDshLHqs7Ug7Iug7LKtIOyVveqwhCDsnbjsl7Ag6re867O4IOyIoOynkSDsoIjrsJgg7ZKN6rK9IOunpOugpSDsi6zsoJUg7Z2s6rOhIOqwkOuPmSDqs7Xtla0g6rWw7J24IOuLrOqxgCDshLHsoIEg7JiI7KCIIOy5nOyymSDtmLjthZQg6rK96rOEIOqzteyLnSDquLTsnqUg66qF7JiIIOynhOynnCDsuajrrLUg67aI67mbIOyLpOyytCDstpzsl7Ag6rOE7KCIIOyghOqwnCDsoJHstIkg6rOE6rOhIOy2leygnCDtlZnsirUg66eM64KoIOuvuOuUlOyWtCDsmIHsg4Eg7JiB7Zi8IOqzs+qzsyDsoJXsi50g7LWc7ISgIO2VnOuztSDqsbTstpUg67CU6rmlIOuztOqzoOyEnCDsl4XsooUg7Jew7LacIOq3vOycoSDslYjqsr0g7Jew7ZWpIOyduOqyqSDtkojrqqkg7JiI7IOBIOychO2YkSDqs7zrqqkg7ISx66qFIOydvOyDgSDsnqXrnpgg7ZKI7KeIIO2ajOqyrCDtnZTsoIEg7J2Y7ZWZIOyepeygkCDsp4Tstpwg64yA65+JIOyKrO2UlCDqs6jrqqkg6riw7ZqNIOuPme2ZlCDrs7jshLEg7KG47JeFIOuGjeuLtCDri7TsnoQg66el7KO8IOyCtOyduCDshLHsp4gg7KCB7JqpIOykkeuwmCDstpzrsJwg6rCB6rWtIOuNleu2hCDrj7zsp4Ag66y87J2MIOygleuptCDtlbTshJ0g66mw64qQ66asIOuvv+ydjCDrsJzqsqwg7Iud7YOBIOyngeygkSDsua3ssKwg64yA7LacIOyCrOybkCDshozsnKDsnpAg7JWh7IiYIOyaleyLrCDsp4HsoIQg6rCV66y8IOuCoOynnCDrjIDrpZkg66qo64uI7YSwIOuylOyduCDrs4Drj5kg7IaQ7ZW0IOy0iOybkCDstZzsooUg65Ox7J6lIOyWkeq1rSDtla3snZgg7ZW064u5IO2ZleuztCDquLTquIkg7Iuk7YOcIOyVoOyglSDsnbzsoJUg7KCV7ISxIOygnOyVvSDqsITsnqUg6rCV7J2YIOq1kO2ZmCDrj5nslpEg7Jew66eQIOybkOqzoCDsoJXrp5Ag6rOE7KKMIOyEnOyqvSDsi6DrnpEg7Iuk7Iq1IOyynOyepSDtlqXsg4Eg6rWt66y8IOunpOyepSDrqoXsua0g7IOB7JeFIOyLpOugpSDsmrjsnYwg7J247LK0IOyggOqzoOumrCDsp4Tri6gg7KeI67ORIOyytOugpSDqt4Dsi6Ag66y86rKwIOuwpeyDgSDsi6TtjKgg7JiI7Jm4IOq4iOuFhCDrk7HroZ0g65SU7Iqk7YGsIOusuOyepSDsmIHsl4Ug7JiI67CpIOuLueq3vCDrp4jriITrnbwg7Jew7IaNIO2GteqzhCDtmZTrtoQg6rCV64KoIOuwmOuwnCDrsJjssKwg7J2M7ISxIOyepeyLnSDsoITrgqAg7ZKN7Iq1IO2dieuCtCDqsJDsmKUg7IOB64u5IOyVoOyduCDslpHrhZAg7LKt7LaYIO2VmeuyiCDqs6Hsi50g7IOB64u0IOyGjeuLtCDsnZjsmpUg7J246re8IOyghOqztSDsoJzsnZgg7KKF7J28IO2GoOuniO2GoCDtmZTsnqUg7IK066a8IOyLpO2YhCDsnKDtlokg66qF7J2YIOu2hOufiSDsg4jtlbQg7Iq57KeEIOyWvOydjCDsl7Trp6Qg7Ya17J6lIO2VtOyViCDtnZHsnbgg66q47KeTIOydvOyRpCDsnbzssrQg7KCI66edIOynnOymnSDssqvrgqAg6rK966ClIOqzteykkSDqs7XtlbQg67Cc66CIIOyXsOyEpCDsl7DtlYQg7Jq07KCEIOuLpO2WiSDrj5nsnZgg66eI66y066asIOuquO2GtSDslYjqsJwg7J6l64KcIOyghOyaqSDqta3sgrAg66eI7J207YGsIOuptOyggSDrqqnsmpUg67CY7ISxIOyXsOqwhCDsnZjsi6wg7IKs66y07IaMIOyDgeyduCDshozsm5Ag7LC97J6RIOy3qO2WpSDtlZnquIkg7ZW06rWwIOqwhO2MkCDrqoXsoIgg67mE7ZaJIOyYiOqwkCDso4Tsnbgg7Lac7J6FIOqxsOyVoSDquIDslKgg64uo7Y64IOuwnOq4uCDrsozroIgg7ISg7KeEIOyEseyduCDsi6ztjJAg7JaR7IusIOygnOyViCDspp3shLgg7KeE6riJIO2XrOq4sCDqs7XqtbAg67aI7Y64IOyLoOuFkCDsmIjsnZgg7J6s64qlIO2VnOusuCDqsrDsirkg6rO16rO1IOq3ueuztSDrjIDqsJwg7IS87YSwIOyXrOq2jCDsl7Tsh6Ag7J246rO1IOyepeuCqCDsoITrsJgg7Y+s64+E7KO8IO2VmeyIoCDtmZTsgrQg7ZmU7J6sIOqwgeqwgSDqsITqsqkg67KM6riIIOyLoOyduCDslYXrqr0g7JWI64K0IOyVnuuSpCDslrjrjZUg7Je07KCVIOyeheunmyDsoIjrjIAg7KCc6rO1IOyytOykkSDstqnrj4wg66eJ64K0IOuwqe2VtCDrs7jsnbgg7IOB7KCQIOyLpOyepSDsoJXrrLgg7LCp6rCBIOy5nOyglSDqsJzrs4Qg64uo7KCQIOuqqeuhnSDrs4TrqoUg7Iug7IS4IOyXsOqysCDsnKHqtbAg7ISk66y4IOyekeyEsSDsoITri6wg7KKM7ISdIOy2nOq3vCDrj5nsoIQg7JW97KCQIOyWkeuztSDsl7DroLkg7ZKN7IaNIO2UvOyVhOuFuCDtlZHqs4Qg6rCE7IStIOqwiOymnSDquLDsm5Ag64Ko66ekIOyduO2YlSDsoITssqAg7Ya17ZmUIOuvvOyGjSDruZfrrLwg7ISk64KgIOyGkOyniCDshpDthrEg7J6F64yAIOyggeyEsSDssKzrrLwg7LSd6rCBIO2DnO2SjSDtlZzriIgg6rCE7KCRIOqysOyLrCDri6jrj4Ug67O064SI7IqkIOyDneq4sCDsl7DslaAg7JyE7ISxIOy3qOyngSDqta3soIEg6re8656YIOuCseunkCDrgrTsmbgg64OE67mEIOuKkeuMgCDshozqt5zrqqgg7JmV7J6QIOyniOyggSDtjrjsnZgg7ZW07ISkIOuLteuzgCDrk7HsgrAg66eM7KGxIOyGkOuwnCDst6jsnqwg7ZWc7J6UIOuLrOugpSDrjIDrgq4g64+E7J6Q6riwIOuRkOq7mCDrs4Dqsr0g7IK87LSMIOyGjeyYtyDshpDrqqkg7IaQ7IukIOykkeuFhCDtj6zsiqTthLAg6rCA7J2065OcIOugjOymiCDrsJzrqqkg67Cp7Jq4IOuztOq0gCDshKDsoIQg7Iug7ISkIOyLpOqwkCDsi6Trp50g7JaR66eQIOyZuOy2nCDsoJDqsoAg7KSR7IicIOyngeyEoCDssLjsmbgg7Yyo7IWYIO2VmeychCDrgpnsl70g64yA7KCRIOuPmeywvSDrs4DrqoUg67O07J6Q6riwIOyUqOumhCDslZ7quLgg7JeJ66edIOyXrOq0gCDsmIHsm4Ug7KCE7ISkIOynkOyekSDssYTrhJAg7Leo7JeFIO2VtOuLtSDtnaXrtoQg64uo7IicIOuptOuLtCDrsJTqtazri4gg67Cc7J2MIOyIoOyelCDsl7Dsnbgg7Jew7J6lIOyXtO2dmCDsmIjshKAg7Y646rKsIO2ZnOq4sCDrho3snqUg67KI6rCcIOyEseqyvSDsoITshKAg7KSR64uoIOy2nOyepSDth7Tqt7wg7ZqM7ZmUIOq3gOq1rSDrs4Dsi6Ag7IaQ6ri4IOyInOychCDslZ7rgqAg7Jyh7IOBIOyduOyerCDsnbjsooUg7KSR64+FIOy2nO2MkCDtgbTrn70g6riI7JewIOuCqOu2gSDrp4zsoJAg7IKs64KY7J20IOyEuOygnCDslZTsu7cg7J6F66ClIOy1nOyLoCDqvrjspJEg64us67mbIOuwmOyjvSDruYzrlKkg7IKw7IaNIOyUqOyVlyDsmIbsp5Eg7Jm47LmoIOydtOu5qCDsnbzshpAg7LK07JioIO2GteqzvCDtlYTrpoQg7ZWt6rO1IO2ajOyghCDrgrTri6wg66qF64uoIOyggeydkSDsuZzsoIgg7Lmo7IukIOqwkOyDgSDqs7Xsp5wg67Cp66m0IOuyleyggSDrsqTsuZgg67O87J28IOynhOuPmSDssIzqsJwg7ZWZ7KCQIO2VqeqyqSDqt7jsgqzsnbQg65287J207YSwIOunpOydvCDrtojtj4kg7IaQ65OxIOyalOumrOyCrCDsm5DshJwg7J6l66GAIOy9lOuvuOuUlCDtmp/siJgg6rOE656AIOq2jO2IrCDrkqTtjrgg67Cb7LmoIOyghOyEuCDrqrjrp6Qg67Cw64usIOuyiOyXrSDshozrgpjquLAg7Iuk66GAIOyVveq1rSDsnITrspUg7J2M66ClIOygnOy2nCDssYTsoJAg7YOA7J6Q6riwIO2MrO2LsCDroIjrqqwg67CU6rCA7KeAIOuzkeyLpCDsiKDrs5Eg7JqV7IukIOyerO2VmSDsp4Tsi6wg7LKc6rWtIO2BsOygiCDtlZnqs7wg6rO87Jm4IOq5gOuwpSDrgrTsoIEg64u17J6lIOuwlOuCmOuCmCDrsJzrk7Eg67Ck7IOIIOuzhOydvCDsmIHrgqgg7Jil7IOBIOygiOyVvSDsoJXri7Ug7KaJ7ISdIO2VnOuCriDtlaDsnbgg6rOg6rWs66eIIOuMgOyehSDrlLjquLAg67Cl66ebIOyEseuzhCDshLjtg4Eg7J2865OxIOygleyepSDsp4TthrUg7LC47ISdIOy1nOyDgSDstZzslYUg7Lac6rWtIOy9lOuBnSDqsIDroZzsiJgg6rCE7IudIOuniOyCrOyngCDrqrjsgrQg67Cl7IalIOuyoOqwnCDrsqjtirgg7IKs7Yis66asIOyDgeq4iCDsi53smpUg7J247IK8IOywu+yelCDsuavshpQg7YGw6ri4IO2VmeugpSDqsJXri7kg6rOg66qo67aAIOqzte2GtSDrhbnsnYwg67Ck7KSRIOyGoe2OuCDsmYDsnbgg7JmV67mEIOyatOuwmCDstJvrtogg7Ya17JetIOuLqOqzqCDri6jrp5sg66Gc7YSw66asIOuwnO2GsSDsgrDquLgg7ISt7JSoIOyGjOyLnOyngCDslb3tkogg7JaR7JiGIOyXrOyZlSDsmIjslb0g7LKc7J6sIOqwleuzgCDrnbzsvJMg66eM7IS4IOuptOygkSDrqoXtlagg66q47IaNIOyEseuLuSDsi5zrjIEg7Iuc67aA66qoIOyZuOygnCDsnYzrsJgg7J2Y64W8IOywrOyEsSDstIjrs7TsnpAg7Yuw7IWU7LigIO2VtOusvCDqsJXrtoEg6rWt66a9IOuCnOuwqSDrhbntmZQg67Ck64KuIOyYhuuwqSDsnbjsoJwg7KG47J2MIO2Kueq4iSDtj4nsnbwg64K06rO8IOusuOuylSDrs7zrp4Eg7JWe66y4IOy5oO2MkCDsp4DtlZjrj4Qg7YqA6rmAIOuwmOunkCDsnqDsmLcg7J6l6rCRIOyynOuRpSDri6jtko0g7J6l7J24IOuLt+yDiCDsnoXqta0g7JWI6rO8IOyXsOyEuCDsnITsuLUg7KeE7LCwIOqysOyEnSDrj4XqsJAg7Jio64+MIO2MneyGoSDtjKnsiqQg67O17Iq1IOyEse2VqCDtlYTthrUg64iI67ORIOyWkeugpSDtlZzsi50g66mU7J28IOuUsOuLmCDsmIjsirUg67aE7ZWEIOyZuOqzvCDspJHsi50g7LyA7LKpIOydvOyLnQ==').split(' ');
+
+      var CHO  = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+      var JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+      var JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+      // Everything reduces to 24 basic jamo: compound vowels, double(겹)받침,
+      // AND tense(쌍)자음 all split into components — ㄲ→ㄱㄱ, ㅆ→ㅅㅅ, ㅐ→ㅏㅣ, ㄺ→ㄹㄱ …
+      var SPLIT = {
+        'ㄲ':['ㄱ','ㄱ'],'ㄸ':['ㄷ','ㄷ'],'ㅃ':['ㅂ','ㅂ'],'ㅆ':['ㅅ','ㅅ'],'ㅉ':['ㅈ','ㅈ'],
+        'ㅐ':['ㅏ','ㅣ'],'ㅔ':['ㅓ','ㅣ'],'ㅒ':['ㅑ','ㅣ'],'ㅖ':['ㅕ','ㅣ'],
+        'ㅘ':['ㅗ','ㅏ'],'ㅙ':['ㅗ','ㅏ','ㅣ'],'ㅚ':['ㅗ','ㅣ'],
+        'ㅝ':['ㅜ','ㅓ'],'ㅞ':['ㅜ','ㅓ','ㅣ'],'ㅟ':['ㅜ','ㅣ'],'ㅢ':['ㅡ','ㅣ'],
+        'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],
+        'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']
+      };
+      function atomsOf(j) { return SPLIT[j] || [j]; }
+
+      function decompose(word) {
+        var out = [];
+        for (var i = 0; i < word.length; i++) {
+          var code = word.charCodeAt(i) - 0xAC00;
+          if (code < 0 || code > 11171) { out.push(word[i]); continue; }
+          var c = Math.floor(code / 588), j = Math.floor((code % 588) / 28), t = code % 28;
+          Array.prototype.push.apply(out, atomsOf(CHO[c]));
+          Array.prototype.push.apply(out, atomsOf(JUNG[j]));
+          if (JONG[t]) Array.prototype.push.apply(out, atomsOf(JONG[t]));
+        }
+        return out;
+      }
+
+      // valid-guess dictionary: the atom-string of every listed word
+      var DICT = new Set();
+      WORDS.forEach(function (w) { DICT.add(decompose(w).join('')); });
+
+      // 두벌식(QWERTY) keyboard — basic jamo only (쌍자음·복합모음은 낱자로 조합).
+      var KB_LAYOUT = [
+        [['ㅂ'],['ㅈ'],['ㄷ'],['ㄱ'],['ㅅ'],['ㅛ'],['ㅕ'],['ㅑ']],
+        [['ㅁ'],['ㄴ'],['ㅇ'],['ㄹ'],['ㅎ'],['ㅗ'],['ㅓ'],['ㅏ'],['ㅣ']],
+        [['ㅋ'],['ㅌ'],['ㅊ'],['ㅍ'],['ㅠ'],['ㅜ'],['ㅡ'],'BACK'],
+        ['ENTER']
+      ];
+      var CODE = {
+        KeyQ:'ㅂ',KeyW:'ㅈ',KeyE:'ㄷ',KeyR:'ㄱ',KeyT:'ㅅ',KeyY:'ㅛ',KeyU:'ㅕ',KeyI:'ㅑ',
+        KeyA:'ㅁ',KeyS:'ㄴ',KeyD:'ㅇ',KeyF:'ㄹ',KeyG:'ㅎ',KeyH:'ㅗ',KeyJ:'ㅓ',KeyK:'ㅏ',KeyL:'ㅣ',
+        KeyZ:'ㅋ',KeyX:'ㅌ',KeyC:'ㅊ',KeyV:'ㅍ',KeyB:'ㅠ',KeyN:'ㅜ',KeyM:'ㅡ'
+      };
+      var RANK = { absent: 1, present: 2, correct: 3 };
+
+      // ── State ──
+      var answer, answerAtoms, rowIdx, curTiles, gameOver, kbStatus;
+      var tileEls = [];      // tileEls[row][col]
+      var jamoKeyEls = [];   // keyboard buttons that carry a jamo (for coloring)
+      var flashTimer;
+
+      // ── Build ──
+      function buildBoard() {
+        while (boardEl.firstChild) boardEl.removeChild(boardEl.firstChild);
+        tileEls = [];
+        for (var r = 0; r < ROWS; r++) {
+          var row = document.createElement('div');
+          row.className = 'wl-row';
+          row.setAttribute('role', 'row');
+          var rowTiles = [];
+          for (var c = 0; c < COLS; c++) {
+            var t = document.createElement('div');
+            t.className = 'wl-tile';
+            t.setAttribute('role', 'gridcell');
+            row.appendChild(t);
+            rowTiles.push(t);
+          }
+          boardEl.appendChild(row);
+          tileEls.push(rowTiles);
+        }
+      }
+
+      function buildKeyboard() {
+        while (kbEl.firstChild) kbEl.removeChild(kbEl.firstChild);
+        jamoKeyEls = [];
+        KB_LAYOUT.forEach(function (rowDef) {
+          var row = document.createElement('div');
+          row.className = 'wl-kb-row';
+          rowDef.forEach(function (def) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'wl-key';
+            if (def === 'SHIFT') {
+              btn.classList.add('wide'); btn.dataset.action = 'shift';
+              btn.textContent = '⇧'; btn.setAttribute('aria-label', '시프트(쌍자음/ㅒㅖ)');
+            } else if (def === 'BACK') {
+              btn.classList.add('wide'); btn.dataset.action = 'back';
+              btn.textContent = '⌫'; btn.setAttribute('aria-label', '한 칸 지우기');
+            } else if (def === 'ENTER') {
+              btn.classList.add('enter'); btn.dataset.action = 'enter';
+              btn.textContent = 'enter'; btn.setAttribute('aria-label', '제출');
+            } else {
+              btn.dataset.base = def[0];
+              if (def[1]) btn.dataset.shifted = def[1];
+              btn.textContent = def[0];
+              jamoKeyEls.push(btn);
+            }
+            // Don't let a pointer press steal focus — keeps physical typing live.
+            btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            btn.addEventListener('click', function () { onKey(btn); });
+            row.appendChild(btn);
+          });
+          kbEl.appendChild(row);
+        });
+      }
+
+      function statusOf(atoms) {
+        var best = null;
+        atoms.forEach(function (a) {
+          var s = kbStatus[a];
+          if (s && (!best || RANK[s] > RANK[best])) best = s;
+        });
+        return best;
+      }
+      function renderKeyStatus() {
+        jamoKeyEls.forEach(function (btn) {
+          btn.classList.remove('correct', 'present', 'absent');
+          var s = statusOf(atomsOf(btn.dataset.base));
+          if (s) btn.classList.add(s);
+        });
+      }
+
+      // ── Input ──
+      function onKey(btn) {
+        var action = btn.dataset.action;
+        if (action === 'enter') { submit(); return; }
+        if (action === 'back')  { delTile(); return; }
+        insertJamo(btn.dataset.base);
+      }
+
+      function insertJamo(jamo) {
+        if (gameOver) return;
+        var atoms = atomsOf(jamo);
+        if (curTiles.length + atoms.length > COLS) return;     // need room for the whole expansion
+        atoms.forEach(function (a) { curTiles.push(a); });
+        renderCurrentRow(true);
+      }
+      function delTile() {
+        if (gameOver || !curTiles.length) return;
+        curTiles.pop();
+        renderCurrentRow(false);
+      }
+      function renderCurrentRow(pop) {
+        var row = tileEls[rowIdx];
+        for (var c = 0; c < COLS; c++) {
+          if (c < curTiles.length) { row[c].textContent = curTiles[c]; row[c].classList.add('filled'); }
+          else { row[c].textContent = ''; row[c].classList.remove('filled'); }
+        }
+        if (pop && curTiles.length) {
+          var last = row[curTiles.length - 1];
+          last.classList.remove('pop'); void last.offsetWidth; last.classList.add('pop');
+        }
+      }
+
+      // ── Scoring (standard two-pass with duplicate handling) ──
+      function evaluate(guess, ans) {
+        var res = new Array(COLS), counts = {};
+        ans.forEach(function (j) { counts[j] = (counts[j] || 0) + 1; });
+        for (var i = 0; i < COLS; i++) {
+          if (guess[i] === ans[i]) { res[i] = 'correct'; counts[guess[i]]--; }
+        }
+        for (var k = 0; k < COLS; k++) {
+          if (res[k]) continue;
+          var j = guess[k];
+          if (counts[j] > 0) { res[k] = 'present'; counts[j]--; }
+          else res[k] = 'absent';
+        }
+        return res;
+      }
+      function bumpStatus(j, s) {
+        if (!RANK[s]) return;
+        if (!kbStatus[j] || RANK[s] > RANK[kbStatus[j]]) kbStatus[j] = s;
+      }
+
+      function shakeRow() {
+        var row = boardEl.children[rowIdx];
+        if (!row) return;
+        row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake');
+      }
+
+      function submit() {
+        if (gameOver) return;
+        if (curTiles.length < COLS) { flashMsg('6칸을 모두 채워주세요.'); return; }
+        var guess = curTiles.slice();
+        if (!DICT.has(guess.join(''))) { flashMsg('사전에 없는 단어예요.'); shakeRow(); return; }
+        var res = evaluate(guess, answerAtoms);
+        var row = tileEls[rowIdx];
+        for (var c = 0; c < COLS; c++) {
+          row[c].classList.remove('filled');
+          row[c].classList.add(res[c]);
+          bumpStatus(guess[c], res[c]);
+        }
+        renderKeyStatus();
+
+        var won = res.every(function (s) { return s === 'correct'; });
+        if (won) {
+          gameOver = true;
+          setMsg('정답! 🎉  ' + answer + '  —  `새 게임`으로 한 판 더', 'win');
+          return;
+        }
+        rowIdx++;
+        curTiles = [];
+        if (rowIdx >= ROWS) {
+          gameOver = true;
+          setMsg('아쉬워요. 정답은 ' + answer + ' (' + answerAtoms.join(' ') + ')', 'lose');
+        }
+      }
+
+      // ── Messages ──
+      function setMsg(text, cls) { msgEl.textContent = text; msgEl.className = 'wl-msg' + (cls ? ' ' + cls : ''); }
+      function flashMsg(text) {
+        setMsg(text, '');
+        clearTimeout(flashTimer);
+        flashTimer = setTimeout(function () { if (!gameOver) setMsg('', ''); }, 1600);
+      }
+
+      function newGame() {
+        answer = WORDS[Math.floor(Math.random() * WORDS.length)];
+        answerAtoms = decompose(answer);
+        rowIdx = 0; curTiles = []; gameOver = false; kbStatus = {};
+        buildBoard();
+        renderKeyStatus();
+        setMsg('', '');
+      }
+
+      // ── Wiring ──
+      newBtn.addEventListener('click', newGame);
+      revealBtn.addEventListener('click', function () {
+        if (gameOver) return;
+        gameOver = true;
+        setMsg('정답은 ' + answer + ' (' + answerAtoms.join(' ') + ')', 'lose');
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (!sectionEl.classList.contains('active')) return;   // only when ~/wordle is showing
+        var ae = document.activeElement;
+        if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+        if (kbEl.contains(ae)) return;                         // a focused on-screen key handles its own key
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        if (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); submit(); return; }
+        if (e.key === 'Backspace' || e.code === 'Backspace') { e.preventDefault(); delTile(); return; }
+        if (owns.call(CODE, e.code)) {
+          e.preventDefault();
+          insertJamo(CODE[e.code]);
+        }
+      });
+
+      buildKeyboard();
+      newGame();
     })();
   </script>
 </body>
