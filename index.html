@@ -706,6 +706,90 @@
 
     .wl-actions { display: flex; justify-content: center; gap: 0.6rem; margin-top: 1.1rem; }
 
+    /* ── Wordle 결과 팝업: 몇 트에 맞췄는지 + 누적 기록 ── */
+    .wl-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      background: rgba(8, 14, 11, 0.62);
+    }
+    .wl-modal[hidden] { display: none; }
+    .wl-card {
+      width: min(23rem, 100%);
+      max-height: 86vh;
+      overflow-y: auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.4rem 1.3rem 1.1rem;
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.3);
+      animation: wl-rise 0.18s ease both;
+    }
+    @keyframes wl-rise { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+    .wl-card h3 {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.95rem;
+      color: var(--moss);
+    }
+    .wl-tries {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.45rem 0 0.15rem;
+    }
+    .wl-tries small { font-size: 0.78rem; font-weight: 400; color: var(--dim); margin-left: 0.4rem; }
+    .wl-answer {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      color: var(--dim);
+      margin-bottom: 0.9rem;
+    }
+    .wl-grid {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 1.05rem;
+      line-height: 1.3;
+      text-align: center;
+      margin: 0 0 1rem;
+    }
+    .wl-statgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; margin-bottom: 0.9rem; }
+    .wl-stat { text-align: center; }
+    .wl-stat b {
+      display: block;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .wl-stat span { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.68rem; color: var(--dim); }
+    .wl-dist { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
+    .wl-dist-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.74rem;
+      color: var(--dim);
+    }
+    .wl-dist-n { flex: 0 0 auto; min-width: 1.8rem; }
+    .wl-dist-track { flex: 1 1 auto; display: flex; min-width: 0; }
+    .wl-dist-bar {
+      background: var(--wl-absent-bg);
+      color: var(--wl-on);
+      border-radius: 3px;
+      padding: 0.1rem 0.4rem;
+      text-align: right;
+      min-width: 1.7rem;
+      transition: width 0.25s ease;
+    }
+    .wl-dist-row.hit .wl-dist-bar { background: var(--wl-correct-bg); }
+    .wl-card-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .wl-card-actions .chef-btn { flex: 1 1 auto; }
+
     /* ── Reduced motion ─────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       h1 .cursor { animation: none; opacity: 1; }
@@ -714,6 +798,8 @@
       .chip, .toggle, body { transition: none; }
       .wl-tile.pop { animation: none; }
       .wl-row.shake { animation: none; }
+      .wl-card { animation: none; }
+      .wl-dist-bar { transition: none; }
     }
   </style>
 </head>
@@ -889,6 +975,7 @@
         <div class="wl-actions">
           <button type="button" class="chef-btn" id="wl-new">새 게임</button>
           <button type="button" class="chef-btn" id="wl-reveal">포기</button>
+          <button type="button" class="chef-btn" id="wl-stats">기록</button>
         </div>
       </section>
     </main>
@@ -898,6 +985,23 @@
       <div class="eof"># EOF</div>
     </footer>
 
+  </div>
+
+  <div class="wl-modal" id="wl-modal" hidden>
+    <div class="wl-card" id="wl-card" role="dialog" aria-modal="true" aria-labelledby="wl-card-title" tabindex="-1">
+      <h3 id="wl-card-title">결과</h3>
+      <p class="wl-tries" id="wl-card-tries"></p>
+      <p class="wl-answer" id="wl-card-answer"></p>
+      <pre class="wl-grid" id="wl-card-grid" role="img" aria-label="추측 기록"></pre>
+      <div class="wl-statgrid" id="wl-card-stats"></div>
+      <div class="wl-dist" id="wl-card-dist"></div>
+      <div class="wl-card-actions">
+        <button type="button" class="chef-btn" id="wl-card-copy">결과 복사</button>
+        <button type="button" class="chef-btn" id="wl-card-again">새 게임</button>
+        <button type="button" class="chef-btn" id="wl-card-close">닫기</button>
+      </div>
+      <p class="chef-status" id="wl-card-status" role="status" aria-live="polite"></p>
+    </div>
   </div>
 
   <script>
@@ -1963,8 +2067,21 @@
       var msgEl     = document.getElementById('wl-msg');
       var newBtn    = document.getElementById('wl-new');
       var revealBtn = document.getElementById('wl-reveal');
+      var statsBtn  = document.getElementById('wl-stats');
       var sectionEl = document.getElementById('wordle');
-      if (!boardEl || !kbEl || !msgEl || !sectionEl) return;
+      var modalEl   = document.getElementById('wl-modal');
+      var cardEl    = document.getElementById('wl-card');
+      var titleEl   = document.getElementById('wl-card-title');
+      var triesEl   = document.getElementById('wl-card-tries');
+      var answerEl  = document.getElementById('wl-card-answer');
+      var gridEl    = document.getElementById('wl-card-grid');
+      var statGridEl= document.getElementById('wl-card-stats');
+      var distEl    = document.getElementById('wl-card-dist');
+      var copyBtn   = document.getElementById('wl-card-copy');
+      var againBtn  = document.getElementById('wl-card-again');
+      var closeBtn  = document.getElementById('wl-card-close');
+      var statusEl  = document.getElementById('wl-card-status');
+      if (!boardEl || !kbEl || !msgEl || !sectionEl || !modalEl || !cardEl) return;
 
       var ROWS = 6, COLS = 6;
       var owns = Object.prototype.hasOwnProperty;
@@ -2052,7 +2169,10 @@
       var answer, answerAtoms, rowIdx, curTiles, gameOver, kbStatus;
       var tileEls = [];      // tileEls[row][col]
       var jamoKeyEls = [];   // keyboard buttons that carry a jamo (for coloring)
-      var flashTimer;
+      var rowResults = [];   // 줄마다 correct/present/absent — 결과 팝업의 이모지 격자용
+      var lastResult = null; // { won, gaveUp, tries }
+      var modalOpen = false, lastFocus = null;
+      var flashTimer, resultTimer, copyTimer;
 
       // ── Build ──
       function buildBoard() {
@@ -2197,17 +2317,19 @@
         }
         renderKeyStatus();
 
+        rowResults.push(res);
+
         var won = res.every(function (s) { return s === 'correct'; });
         if (won) {
-          gameOver = true;
-          setMsg('정답! 🎉  ' + answer + '  —  `새 게임`으로 한 판 더', 'win');
+          setMsg('정답! 🎉  ' + answer + '  —  ' + (rowIdx + 1) + '/' + ROWS + '트', 'win');
+          finishGame(true, false);
           return;
         }
         rowIdx++;
         curTiles = [];
         if (rowIdx >= ROWS) {
-          gameOver = true;
           setMsg('아쉬워요. 정답은 ' + answer + ' (' + answerAtoms.join(' ') + ')', 'lose');
+          finishGame(false, false);
         }
       }
 
@@ -2219,10 +2341,212 @@
         flashTimer = setTimeout(function () { if (!gameOver) setMsg('', ''); }, 1600);
       }
 
+      // ── 기록 (localStorage: 판수·승률·연승·시도 분포) ──
+      var STATS_KEY = 'wordle.stats';
+
+      function toCount(v) { return typeof v === 'number' && isFinite(v) && v > 0 ? Math.floor(v) : 0; }
+
+      function loadStats() {
+        var raw = null;
+        try { raw = JSON.parse(localStorage.getItem(STATS_KEY) || 'null'); } catch (e) {}
+        if (!raw || typeof raw !== 'object') raw = {};
+        var dist = [];
+        for (var i = 0; i < ROWS; i++) dist.push(toCount(raw.dist && raw.dist[i]));
+        return {
+          played: toCount(raw.played), won: toCount(raw.won),
+          streak: toCount(raw.streak), best: toCount(raw.best), dist: dist
+        };
+      }
+      function saveStats(s) {
+        try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) {}
+      }
+      function recordResult(won, tries) {
+        var s = loadStats();
+        s.played += 1;
+        if (won) {
+          s.won += 1;
+          s.streak += 1;
+          if (s.streak > s.best) s.best = s.streak;
+          if (tries >= 1 && tries <= ROWS) s.dist[tries - 1] += 1;
+        } else {
+          s.streak = 0;
+        }
+        saveStats(s);
+      }
+
+      // ── 결과 팝업 ──
+      var SQUARE = { correct: '🟩', present: '🟨', absent: '⬛' };
+
+      function gridLines() {
+        return rowResults.map(function (res) {
+          return res.map(function (s) { return SQUARE[s] || SQUARE.absent; }).join('');
+        });
+      }
+      function shareText() {
+        if (!lastResult) return '';
+        var head = '~/wordle ' + (lastResult.won ? lastResult.tries : 'X') + '/' + ROWS +
+                   (lastResult.gaveUp ? ' (포기)' : '');
+        return [head].concat(gridLines(), ['https://codingjune20.github.io/#wordle']).join('\n');
+      }
+      function setCardStatus(text, isErr) {
+        statusEl.textContent = text;
+        statusEl.className = 'chef-status' + (isErr ? ' err' : '');
+      }
+
+      function renderStats(highlightTries) {
+        var s = loadStats();
+        var cells = [
+          [s.played, '판'],
+          [(s.played ? Math.round((s.won / s.played) * 100) : 0) + '%', '승률'],
+          [s.streak, '연승'],
+          [s.best, '최고 연승']
+        ];
+        while (statGridEl.firstChild) statGridEl.removeChild(statGridEl.firstChild);
+        cells.forEach(function (cell) {
+          var box = document.createElement('div');
+          box.className = 'wl-stat';
+          var value = document.createElement('b');
+          value.textContent = String(cell[0]);
+          var label = document.createElement('span');
+          label.textContent = cell[1];
+          box.appendChild(value); box.appendChild(label);
+          statGridEl.appendChild(box);
+        });
+
+        var max = 1;
+        s.dist.forEach(function (n) { if (n > max) max = n; });
+        while (distEl.firstChild) distEl.removeChild(distEl.firstChild);
+        s.dist.forEach(function (n, i) {
+          var row = document.createElement('div');
+          row.className = 'wl-dist-row' + (highlightTries === i + 1 ? ' hit' : '');
+          var label = document.createElement('span');
+          label.className = 'wl-dist-n';
+          label.textContent = (i + 1) + '트';
+          var track = document.createElement('span');
+          track.className = 'wl-dist-track';
+          var bar = document.createElement('span');
+          bar.className = 'wl-dist-bar';
+          bar.style.width = Math.round((n / max) * 100) + '%';
+          bar.textContent = String(n);
+          track.appendChild(bar);
+          row.appendChild(label); row.appendChild(track);
+          distEl.appendChild(row);
+        });
+      }
+
+      function cardButtons() {
+        return Array.prototype.filter.call(cardEl.querySelectorAll('button'), function (b) {
+          return !b.disabled && !b.hidden;
+        });
+      }
+      var savedOverflow = '';
+      function openCard() {
+        if (!modalOpen) {
+          lastFocus = document.activeElement;
+          savedOverflow = document.body.style.overflow;
+          document.body.style.overflow = 'hidden';             // 팝업 뒤 배경은 스크롤되지 않게
+        }
+        modalEl.hidden = false;
+        modalOpen = true;
+        cardEl.scrollTop = 0;
+        cardEl.focus({ preventScroll: true });
+      }
+      function closeCard() {
+        if (!modalOpen) return;
+        modalEl.hidden = true;
+        modalOpen = false;
+        document.body.style.overflow = savedOverflow;
+        clearTimeout(copyTimer);
+        setCardStatus('');
+        if (lastFocus && typeof lastFocus.focus === 'function' && document.contains(lastFocus)) {
+          lastFocus.focus({ preventScroll: true });
+        }
+        lastFocus = null;
+      }
+
+      function showResultCard() {
+        if (!lastResult) return;
+        if (!sectionEl.classList.contains('active')) return;   // 다른 섹션으로 옮겨갔으면 띄우지 않음
+        titleEl.textContent = lastResult.won ? '정답! 🎉' : (lastResult.gaveUp ? '포기했어요' : '아쉬워요');
+        while (triesEl.firstChild) triesEl.removeChild(triesEl.firstChild);
+        triesEl.appendChild(document.createTextNode((lastResult.won ? lastResult.tries : 'X') + ' / ' + ROWS));
+        var note = document.createElement('small');
+        note.textContent = lastResult.won ? ' 트만에 맞췄어요' : (lastResult.gaveUp ? ' 포기' : ' 여섯 줄 다 썼어요');
+        triesEl.appendChild(note);
+        answerEl.textContent = '정답 ' + answer + ' · ' + answerAtoms.join(' ');
+
+        var lines = gridLines();
+        gridEl.textContent = lines.join('\n');
+        gridEl.setAttribute('aria-label', lines.length ? ('추측 기록 ' + lines.length + '줄') : '추측 기록 없음');
+        triesEl.hidden = false;
+        answerEl.hidden = false;
+        gridEl.hidden = lines.length === 0;
+        copyBtn.hidden = lines.length === 0;
+
+        renderStats(lastResult.won ? lastResult.tries : 0);
+        setCardStatus('');
+        openCard();
+      }
+
+      // 게임 중에도 누를 수 있는 `기록` 버튼 — 정답은 숨긴 채 누적 기록만 보여줌
+      function showStatsCard() {
+        titleEl.textContent = '기록';
+        triesEl.hidden = true;
+        answerEl.hidden = true;
+        gridEl.hidden = true;
+        copyBtn.hidden = true;
+        renderStats(0);
+        setCardStatus('');
+        openCard();
+      }
+
+      function finishGame(won, gaveUp) {
+        gameOver = true;
+        var tries = won ? rowIdx + 1 : 0;
+        lastResult = { won: won, gaveUp: !!gaveUp, tries: tries };
+        recordResult(won, tries);
+        clearTimeout(resultTimer);
+        resultTimer = setTimeout(showResultCard, won ? 520 : 420);   // 마지막 줄 색이 보인 뒤에 뜨도록
+      }
+
+      function copyResult() {
+        var text = shareText();
+        if (!text) { setCardStatus('복사할 결과가 없어요.', true); return; }
+        var done = function () {
+          setCardStatus('복사했어요.');
+          clearTimeout(copyTimer);
+          copyTimer = setTimeout(function () { setCardStatus(''); }, 1400);
+        };
+        var fallback = function () {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '0';
+          ta.style.opacity = '0';
+          cardEl.appendChild(ta);
+          ta.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) {}
+          cardEl.removeChild(ta);
+          cardEl.focus({ preventScroll: true });
+          if (ok) done();
+          else setCardStatus('복사에 실패했어요 — 격자를 직접 선택해 주세요.', true);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } else {
+          fallback();
+        }
+      }
+
       function newGame() {
         answer = ANSWERS[Math.floor(Math.random() * ANSWERS.length)];
         answerAtoms = decompose(answer);
         rowIdx = 0; curTiles = []; gameOver = false; kbStatus = {};
+        rowResults = []; lastResult = null;
+        clearTimeout(resultTimer);
+        closeCard();
         buildBoard();
         renderKeyStatus();
         setMsg('', '');
@@ -2232,12 +2556,32 @@
       newBtn.addEventListener('click', newGame);
       revealBtn.addEventListener('click', function () {
         if (gameOver) return;
-        gameOver = true;
         setMsg('정답은 ' + answer + ' (' + answerAtoms.join(' ') + ')', 'lose');
+        finishGame(false, true);
+      });
+      if (statsBtn) statsBtn.addEventListener('click', showStatsCard);
+
+      copyBtn.addEventListener('click', copyResult);
+      closeBtn.addEventListener('click', closeCard);
+      againBtn.addEventListener('click', function () { closeCard(); newGame(); });
+      modalEl.addEventListener('click', function (e) { if (e.target === modalEl) closeCard(); });
+      modalEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' || e.code === 'Escape') { e.preventDefault(); closeCard(); return; }
+        if (e.key !== 'Tab') return;
+        var items = cardButtons();
+        if (!items.length) return;
+        var first = items[0], last = items[items.length - 1], ae = document.activeElement;
+        if (e.shiftKey && (ae === first || ae === cardEl)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && ae === last) { e.preventDefault(); first.focus(); }
+      });
+      // 다른 섹션으로 이동하면 팝업은 닫아 둠 (팝업이 <main> 밖에 있어서 남아 있을 수 있음)
+      window.addEventListener('section-activated', function (e) {
+        if (!e || !e.detail || e.detail.id !== 'wordle') closeCard();
       });
 
       document.addEventListener('keydown', function (e) {
         if (!sectionEl.classList.contains('active')) return;   // only when ~/wordle is showing
+        if (modalOpen) return;                                 // 결과 팝업이 떠 있으면 팝업이 키를 가져감
         var ae = document.activeElement;
         if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
         if (kbEl.contains(ae)) return;                         // a focused on-screen key handles its own key
