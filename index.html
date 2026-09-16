@@ -100,6 +100,7 @@
       --wl-present-bg: #A96C15;
       --wl-absent-bg:  #78817A;
       --wl-on:         #F5F7F2;
+      --wl-scrim:      rgba(8, 14, 11, 0.5);
     }
     :root[data-theme="light"] { color-scheme: light; }
     :root[data-theme="dark"]  { color-scheme: dark; }
@@ -118,6 +119,7 @@
         --wl-present-bg: #BC8A32;
         --wl-absent-bg:  #3A423C;
         --wl-on:         #EEF2EA;
+        --wl-scrim:      rgba(0, 0, 0, 0.74);
       }
     }
     :root[data-theme="dark"] {
@@ -133,6 +135,7 @@
       --wl-present-bg: #BC8A32;
       --wl-absent-bg:  #3A423C;
       --wl-on:         #EEF2EA;
+      --wl-scrim:      rgba(0, 0, 0, 0.74);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -716,7 +719,7 @@
       align-items: center;
       justify-content: center;
       padding: 1.2rem;
-      background: rgba(8, 14, 11, 0.62);
+      background: var(--wl-scrim);
     }
     .wl-modal[hidden] { display: none; }
     .wl-card {
@@ -724,10 +727,10 @@
       max-height: 86vh;
       overflow-y: auto;
       background: var(--paper);
-      border: 1px solid var(--line);
+      border: 1px solid var(--dim);
       border-radius: 8px;
       padding: 1.4rem 1.3rem 1.1rem;
-      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45);
       animation: wl-rise 0.18s ease both;
     }
     @keyframes wl-rise { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
@@ -2608,7 +2611,13 @@
       copyBtn.addEventListener('click', copyResult);
       closeBtn.addEventListener('click', closeCard);
       againBtn.addEventListener('click', function () { closeCard(); newGame(); });
-      modalEl.addEventListener('click', function (e) { if (e.target === modalEl) closeCard(); });
+      var pressedBackdrop = false;
+      modalEl.addEventListener('mousedown', function (e) { pressedBackdrop = (e.target === modalEl); });
+      modalEl.addEventListener('click', function (e) {
+        var onBackdrop = pressedBackdrop;
+        pressedBackdrop = false;
+        if (e.target === modalEl && onBackdrop) closeCard();    // 카드 안에서 시작한 드래그는 닫지 않음
+      });
       modalEl.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' || e.code === 'Escape') { e.preventDefault(); closeCard(); return; }
         if (e.key !== 'Tab') return;
