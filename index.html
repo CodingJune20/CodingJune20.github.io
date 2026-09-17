@@ -988,6 +988,7 @@
           <button type="button" class="chef-btn" id="wl-daily" aria-pressed="true">오늘의 단어</button>
           <button type="button" class="chef-btn" id="wl-new" aria-pressed="false">자유 연습</button>
           <button type="button" class="chef-btn" id="wl-reveal">포기</button>
+          <button type="button" class="chef-btn" id="wl-share" hidden>결과 공유</button>
           <button type="button" class="chef-btn" id="wl-stats">기록</button>
           <button type="button" class="chef-btn" id="wl-mode" aria-pressed="false">hard mode</button>
         </div>
@@ -2084,6 +2085,7 @@
       var newBtn    = document.getElementById('wl-new');
       var dailyBtn  = document.getElementById('wl-daily');
       var revealBtn = document.getElementById('wl-reveal');
+      var shareBtn  = document.getElementById('wl-share');
       var statsBtn  = document.getElementById('wl-stats');
       var modeBtn   = document.getElementById('wl-mode');
       var sectionEl = document.getElementById('wordle');
@@ -2101,7 +2103,7 @@
       var againBtn  = document.getElementById('wl-card-again');
       var closeBtn  = document.getElementById('wl-card-close');
       var statusEl  = document.getElementById('wl-card-status');
-      if (!boardEl || !kbEl || !msgEl || !sectionEl || !modalEl || !cardEl || !modeBtn || !dailyBtn) return;
+      if (!boardEl || !kbEl || !msgEl || !sectionEl || !modalEl || !cardEl || !modeBtn || !dailyBtn || !shareBtn) return;
 
       var ROWS = 6, COLS = 6;
       var owns = Object.prototype.hasOwnProperty;
@@ -2506,8 +2508,22 @@
         var head = '~/wordle ' + tag +
                    (lastResult.won ? lastResult.tries : 'X') + '/' + ROWS +
                    (lastResult.gaveUp ? ' (포기)' : '');
-        return [head].concat(gridLines(), ['https://codingjune20.github.io/#wordle']).join('\n');
+        if (mode === 'daily' && lastResult.won) {
+          var streak = loadStats().streak;
+          if (streak > 1) head += ' · 연속 ' + streak + '일';
+        }
+        return [head].concat(gridLines(), [shareUrl()]).join('\n');
       }
+      function shareUrl() {
+        var loc = window.location;
+        return /^https?:$/.test(loc.protocol) ? loc.origin + loc.pathname + '#wordle'
+                                              : 'https://codingjune20.github.io/#wordle';
+      }
+      // 끝난 판이 있으면 언제든 다시 열어 공유할 수 있게 버튼을 띄운다.
+      function renderShareBtn() {
+        shareBtn.hidden = !(gameOver && lastResult);
+      }
+
       function setCardStatus(text, isErr) {
         statusEl.textContent = text;
         statusEl.className = 'chef-status' + (isErr ? ' err' : '');
@@ -2629,6 +2645,7 @@
 
         renderStats(lastResult.won ? lastResult.tries : 0);
         renderCardMode(true);
+        renderShareBtn();
         setCardStatus('');
         openCard();
       }
@@ -2655,8 +2672,27 @@
           daily.done = true; daily.won = won; daily.gaveUp = !!gaveUp;
           saveDaily();
         }
+        renderShareBtn();
         clearTimeout(resultTimer);
         resultTimer = setTimeout(showResultCard, won ? 520 : 420);   // 마지막 줄 색이 보인 뒤에 뜨도록
+      }
+
+      // 모바일은 네이티브 공유 시트, 나머지는 클립보드 복사.
+      function shareResult() {
+        var text = shareText();
+        if (!text) { setCardStatus('공유할 결과가 없어요.', true); return; }
+        if (navigator.share) {
+          navigator.share({ text: text }).then(function () {
+            setCardStatus('공유했어요.');
+            clearTimeout(copyTimer);
+            copyTimer = setTimeout(function () { setCardStatus(''); }, 1400);
+          }, function (err) {
+            if (err && err.name === 'AbortError') return;       // 사용자가 공유를 취소한 경우
+            copyResult();
+          });
+          return;
+        }
+        copyResult();
       }
 
       function copyResult() {
@@ -2698,6 +2734,7 @@
         buildBoard();
         renderKeyStatus();
         setMsg('', '');
+        renderShareBtn();
       }
 
       function startFree() {
@@ -2729,6 +2766,7 @@
             ? '오늘의 단어 성공 🎉  ' + rowIdx + '/' + ROWS + '트 — 내일 새 단어로 만나요'
             : '오늘의 단어는 끝났어요. 정답은 ' + answer + ' — 내일 새 단어로 만나요',
             daily.won ? 'win' : 'lose');
+          renderShareBtn();                                    // 새로고침 뒤에도 결과를 다시 꺼내볼 수 있게
         } else if (rowIdx > 0) {
           setMsg('오늘의 단어 이어서 — ' + (ROWS - rowIdx) + '줄 남음', '');
         }
@@ -2753,7 +2791,9 @@
           : 'hard mode off — 정답 후보 ' + answerPool().length.toLocaleString() + '개');
       });
 
-      copyBtn.addEventListener('click', copyResult);
+      copyBtn.addEventListener('click', shareResult);
+      shareBtn.addEventListener('click', showResultCard);
+      if (navigator.share) copyBtn.textContent = '공유하기';
       closeBtn.addEventListener('click', closeCard);
       againBtn.addEventListener('click', function () { closeCard(); startFree(); });
       var pressedBackdrop = false;
