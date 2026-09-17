@@ -2502,17 +2502,23 @@
           return res.map(function (s) { return SQUARE[s] || SQUARE.absent; }).join('');
         });
       }
+      function verdict() {
+        return lastResult.won ? '성공!' : (lastResult.gaveUp ? '포기' : '실패');
+      }
+      function modeLabel() {
+        if (mode === 'daily') return '오늘의 단어';
+        return hardMode ? '자유 연습(hard)' : '자유 연습';
+      }
       function shareText() {
         if (!lastResult) return '';
-        var tag = mode === 'daily' ? daily.date + ' ' : (hardMode ? 'hard ' : '');
-        var head = '~/wordle ' + tag +
-                   (lastResult.won ? lastResult.tries : 'X') + '/' + ROWS +
-                   (lastResult.gaveUp ? ' (포기)' : '');
-        if (mode === 'daily' && lastResult.won) {
+        var head = modeLabel() + ' ' + verdict() + ' ' +
+                   (lastResult.won ? lastResult.tries : 'X') + '/' + ROWS;
+        if (mode === 'daily') {
+          head += ' · ' + daily.date;
           var streak = loadStats().streak;
-          if (streak > 1) head += ' · 연속 ' + streak + '일';
+          if (lastResult.won && streak > 1) head += ' · 연속 ' + streak + '일';
         }
-        return [head].concat(gridLines(), [shareUrl()]).join('\n');
+        return [head].concat(gridLines(), ['~/wordle · ' + shareUrl()]).join('\n');
       }
       function shareUrl() {
         var loc = window.location;
@@ -2627,7 +2633,9 @@
       function showResultCard() {
         if (!lastResult) return;
         if (!sectionEl.classList.contains('active')) return;   // 다른 섹션으로 옮겨갔으면 띄우지 않음
-        titleEl.textContent = lastResult.won ? '정답! 🎉' : (lastResult.gaveUp ? '포기했어요' : '아쉬워요');
+        titleEl.textContent = mode === 'daily'
+          ? '오늘의 단어 ' + verdict() + (lastResult.won ? ' 🎉' : '')
+          : (lastResult.won ? '정답! 🎉' : (lastResult.gaveUp ? '포기했어요' : '아쉬워요'));
         while (triesEl.firstChild) triesEl.removeChild(triesEl.firstChild);
         triesEl.appendChild(document.createTextNode((lastResult.won ? lastResult.tries : 'X') + ' / ' + ROWS));
         var note = document.createElement('small');
